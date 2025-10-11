@@ -83,3 +83,14 @@ def toggle_config(name: str, enable: bool) -> bool:
     except Exception as e:
         print("Toggle error:", e)
         return False
+
+def get_qr_png(name: str):
+    # returns raw png bytes by piping config into qrencode
+    p = Path(CONFIG_DIR) / f"{name}.conf"
+    if not p.exists():
+        return None
+    cmd = f"qrencode -o - -t PNG < {str(p)}"
+    try:
+        return subprocess.check_output(cmd, shell=True)
+    except Exception:
+        return None
