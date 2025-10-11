@@ -1,1 +1,1 @@
-// dashboard js placeholder
+// Placeholder JS

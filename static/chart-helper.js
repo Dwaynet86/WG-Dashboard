@@ -1,1 +1,1 @@
-// chart helper placeholder
+// Placeholder chart helper JS
