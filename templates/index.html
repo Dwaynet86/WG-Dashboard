@@ -12,7 +12,11 @@
     <h1 class="text-2xl font-bold">PiVPN Dashboard</h1>
     <div>
       <span class="text-gray-400 mr-4">Logged in as: {{ request.cookies.session and request.cookies.session or '?' }}</span>
+      {% if role == 'admin' %}
+      <a href="/admin" class="text-blue-400 mr-4">Admin</a>
+      {% endif %}
       <a href="/logout" class="text-red-400">Logout</a>
+
     </div>
   </div>
 
