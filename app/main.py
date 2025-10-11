@@ -9,10 +9,14 @@ from app.database import init_db, query_traffic, get_conn
 from app.auth import verify_system_user, create_session_for_user, get_username_from_request, logout_token
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.wsmanager import wsmanager
+from app import admin
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(admin.router)
+
 
 # Initialize DB
 init_db()
