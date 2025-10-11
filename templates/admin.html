@@ -14,9 +14,10 @@
     </div>
   </div>
 
-   <div class="bg-gray-800 p-4 rounded mb-6">
+  <!-- Add New User -->
+  <div class="bg-gray-800 p-4 rounded mb-6">
     <h2 class="text-xl mb-3">Add New User</h2>
-    <form action="/admin/add" method="post" class="flex flex-wrap gap-2 items-end">
+    <form action="/admin/add" method="post" class="flex flex-wrap gap-4 items-end">
       <div>
         <label class="block text-gray-300 text-sm mb-1">Username</label>
         <input name="username" required class="p-2 rounded bg-gray-700 text-white"/>
@@ -28,30 +29,34 @@
           <option value="admin">Admin</option>
         </select>
       </div>
-      <div class="flex items-center ml-4">
+      <div>
+        <label class="block text-gray-300 text-sm mb-1">Email (optional)</label>
+        <input name="email" type="email" class="p-2 rounded bg-gray-700 text-white"/>
+      </div>
+      <div class="flex items-center">
         <input type="checkbox" name="create_system" value="1" class="mr-2">
         <label class="text-gray-300 text-sm">Also create system account</label>
       </div>
       <button class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-white">Add User</button>
     </form>
-  
+
     {% if password %}
     <div class="mt-4 bg-gray-700 text-green-300 p-3 rounded">
-      <p><strong>System account created!</strong></p>
-      <p>Username: <code>{{ new_user }}</code></p>
+      <p><strong>System account created for {{ new_user }}</strong></p>
       <p>Temporary password: <code>{{ password }}</code></p>
-      <p class="text-sm text-gray-400">(User should change password after first login.)</p>
+      <p class="text-sm text-gray-400">(User must change password at first login)</p>
     </div>
     {% endif %}
   </div>
 
-
-  <div class="bg-gray-800 p-4 rounded">
+  <!-- Existing Users -->
+  <div class="bg-gray-800 p-4 rounded mb-6">
     <h2 class="text-xl mb-3">Existing Users</h2>
     <table class="w-full">
       <thead class="text-gray-400 border-b border-gray-700">
         <tr>
           <th class="text-left p-2">Username</th>
+          <th class="p-2">Email</th>
           <th class="p-2">Role</th>
           <th class="p-2 text-center">Actions</th>
         </tr>
@@ -60,9 +65,11 @@
         {% for u in users %}
         <tr class="border-b border-gray-700">
           <td class="p-2">{{ u['username'] }}</td>
+          <td class="p-2">{{ u['email'] or '-' }}</td>
           <td class="p-2">
             <form action="/admin/update" method="post" class="inline-flex items-center">
               <input type="hidden" name="username" value="{{ u['username'] }}">
+              <input type="hidden" name="email" value="{{ u['email'] or '' }}">
               <select name="role" class="p-1 rounded bg-gray-700 text-white text-sm">
                 <option value="viewer" {% if u['role'] == 'viewer' %}selected{% endif %}>Viewer</option>
                 <option value="admin" {% if u['role'] == 'admin' %}selected{% endif %}>Admin</option>
@@ -80,6 +87,27 @@
             <span class="text-gray-400 text-sm italic">You</span>
             {% endif %}
           </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Audit Log -->
+  <div class="bg-gray-800 p-4 rounded">
+    <h2 class="text-xl mb-3">Recent Admin Actions</h2>
+    <table class="w-full text-sm">
+      <thead class="text-gray-400 border-b border-gray-700">
+        <tr><th class="text-left p-2">Time</th><th class="p-2">Admin</th><th class="p-2">Action</th><th class="p-2">Target</th><th class="p-2">Details</th></tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr class="border-b border-gray-700">
+          <td class="p-2 text-gray-400">{{ log['ts'] }}</td>
+          <td class="p-2">{{ log['admin'] }}</td>
+          <td class="p-2">{{ log['action'] }}</td>
+          <td class="p-2">{{ log['target'] }}</td>
+          <td class="p-2 text-gray-400">{{ log['details'] }}</td>
         </tr>
         {% endfor %}
       </tbody>
