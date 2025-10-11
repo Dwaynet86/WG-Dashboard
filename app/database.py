@@ -117,5 +117,23 @@ def query_traffic(client_name=None, hours=24):
                 "SELECT ts, client_name, bytes_in, bytes_out FROM traffic_log WHERE ts >= datetime('now','-? hour') ORDER BY ts",
                 (str(hours),)
             ).fetchall()
+
+def log_admin_action(admin, action, target, details=""):
+    with _conn_lock:
+        conn = get_conn()
+        conn.execute("INSERT INTO admin_log(admin, action, target, details) VALUES (?,?,?,?)",
+                     (admin, action, target, details))
+        conn.commit()
+        conn.close()
+
+def get_admin_log(limit=100):
+    with _conn_lock:
+        conn = get_conn()
+        rows = conn.execute(
+            "SELECT admin, action, target, details, ts FROM admin_log ORDER BY ts DESC LIMIT ?", (limit,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
         conn.close()
         return [dict(r) for r in rows]
