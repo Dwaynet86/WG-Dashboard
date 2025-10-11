@@ -24,6 +24,24 @@ def init_db():
             username TEXT PRIMARY KEY,
             role TEXT NOT NULL
         )""")
+                # Add columns if missing
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
+        except Exception:
+            pass
+
+        # Audit log
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS admin_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin TEXT,
+            action TEXT,
+            target TEXT,
+            details TEXT,
+            ts DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
         # sessions: simple token-based sessions
         cur.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
