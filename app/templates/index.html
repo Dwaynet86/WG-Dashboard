@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PiVPN Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 p-6">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">PiVPN Dashboard</h1>
+    <div>
+      <span class="text-gray-400 mr-4">Logged in as: {{ request.cookies.session and request.cookies.session or '?' }}</span>
+      {% if role == 'admin' %}
+	  <a href="/admin" class="text-blue-400 mr-4">Admin</a>
+	  {% endif %}
+	  <a href="/password" class="text-blue-400 mr-4">Change Password</a>
+	  <a href="/logout" class="text-red-400">Logout</a>
+
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-gray-800 p-4 rounded">
+      <div class="text-sm text-gray-400">Total Clients</div>
+      <div id="totalClients" class="text-3xl font-semibold">0</div>
+    </div>
+    <div class="bg-gray-800 p-4 rounded">
+      <div class="text-sm text-gray-400">Connected</div>
+      <div id="connectedClients" class="text-3xl font-semibold text-green-400">0</div>
+    </div>
+  </div>
+
+  <div class="bg-gray-800 rounded p-4 mb-6">
+    <table class="w-full">
+      <thead class="text-gray-300">
+        <tr>
+          <th class="text-left p-2">Client</th>
+          <th class="p-2">Internal</th>
+          <th class="p-2">External</th>
+          <th class="p-2">Traffic</th>
+          <th class="p-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="clientTable" class="text-gray-200"></tbody>
+    </table>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="bg-gray-800 p-4 rounded">
+      <h3 class="text-gray-200 mb-3">Total Traffic (last 24h)</h3>
+      <canvas id="totalTrafficChart" height="200"></canvas>
+    </div>
+
+    <div class="bg-gray-800 p-4 rounded">
+      <h3 class="text-gray-200 mb-3">Client History</h3>
+      <select id="clientSelect" class="w-full mb-3 p-2 bg-gray-700 rounded"></select>
+      <canvas id="clientChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- QR modal -->
+  <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+    <div class="bg-white p-6 rounded shadow-lg">
+      <h2 id="qrTitle" class="text-black font-semibold mb-3"></h2>
+      <img id="qrImage" src="" alt="QR code" class="mx-auto mb-3"/>
+      <div class="text-right">
+        <button onclick="closeQR()" class="px-3 py-1 bg-gray-700 text-white rounded">Close</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

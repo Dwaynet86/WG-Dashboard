@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-pam
+python-multipart
+aiofiles
+jinja2
+pydantic
