@@ -1,6 +1,6 @@
 # app/main.py
 from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, Response
-from fastapi.responses import RedirectResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, StreamingResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -8,6 +8,7 @@ import asyncio
 from app.database import init_db, query_traffic, get_conn, log_admin_action
 from app.auth import verify_system_user, create_session_for_user, get_username_from_request, logout_token
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
+from app.pivpn import list_configs, read_config, delete_config, toggle_config
 from app.wsmanager import wsmanager
 from app import admin
 import subprocess
@@ -103,6 +104,40 @@ async def password_post(request: Request, current: str = Form(...), new1: str = 
     return templates.TemplateResponse("password.html", {
         "request": request, "message": message, "success": success
     })
+
+@app.get("/api/configs")
+async def api_configs():
+    """Return a list of all client configs"""
+    return {"configs": list_configs()}
+
+@app.get("/api/config/{name}", response_class=PlainTextResponse)
+async def api_config(name: str):
+    """Show config text"""
+    conf = read_config(name)
+    if not conf:
+        return PlainTextResponse("Config not found", status_code=404)
+    return PlainTextResponse(conf, media_type="text/plain")
+
+@app.get("/api/config/{name}/download")
+async def api_download_config(name: str):
+    """Download config"""
+    conf = read_config(name)
+    if not conf:
+        return PlainTextResponse("Config not found", status_code=404)
+    headers = {"Content-Disposition": f"attachment; filename={name}.conf"}
+    return PlainTextResponse(conf, headers=headers, media_type="text/plain")
+
+@app.delete("/api/config/{name}")
+async def api_delete_config(name: str):
+    """Delete config file"""
+    ok = delete_config(name)
+    return {"deleted": ok}
+
+@app.post("/api/config/{name}/toggle")
+async def api_toggle_config(name: str, enable: bool = Form(...)):
+    """Enable or disable config file"""
+    ok = toggle_config(name, enable)
+    return {"ok": ok}
 
 
 # --------------------
