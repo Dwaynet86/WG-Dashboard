@@ -10,7 +10,7 @@ from app.auth import verify_system_user, create_session_for_user, get_username_f
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.wsmanager import wsmanager
 from app import admin
-
+import subprocess
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -64,6 +64,45 @@ async def logout(request: Request):
     r = RedirectResponse("/login")
     r.delete_cookie("session")
     return r
+@app.get("/password", response_class=HTMLResponse)
+async def password_get(request: Request):
+    username = get_username_from_request(request)
+    if not username:
+        return RedirectResponse("/login")
+    return templates.TemplateResponse("password.html", {"request": request, "message": None, "success": False})
+
+@app.post("/password", response_class=HTMLResponse)
+async def password_post(request: Request, current: str = Form(...), new1: str = Form(...), new2: str = Form(...)):
+    username = get_username_from_request(request)
+    if not username:
+        return RedirectResponse("/login")
+
+    if new1 != new2:
+        return templates.TemplateResponse("password.html", {
+            "request": request, "message": "New passwords do not match.", "success": False
+        })
+
+    # Verify current password via PAM
+    import pam
+    p = pam.pam()
+    if not p.authenticate(username, current):
+        return templates.TemplateResponse("password.html", {
+            "request": request, "message": "Current password is incorrect.", "success": False
+        })
+
+    # Change password via chpasswd
+    try:
+        subprocess.run(["sudo", "chpasswd"], input=f"{username}:{new1}".encode(), check=True)
+        message = "Password successfully changed."
+        success = True
+    except subprocess.CalledProcessError as e:
+        message = "Password change failed."
+        success = False
+
+    return templates.TemplateResponse("password.html", {
+        "request": request, "message": message, "success": success
+    })
+
 
 # --------------------
 # WebSocket endpoint
