@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="bg-gray-800 p-4 rounded mb-6">
+   <div class="bg-gray-800 p-4 rounded mb-6">
     <h2 class="text-xl mb-3">Add New User</h2>
     <form action="/admin/add" method="post" class="flex flex-wrap gap-2 items-end">
       <div>
@@ -28,9 +28,23 @@
           <option value="admin">Admin</option>
         </select>
       </div>
+      <div class="flex items-center ml-4">
+        <input type="checkbox" name="create_system" value="1" class="mr-2">
+        <label class="text-gray-300 text-sm">Also create system account</label>
+      </div>
       <button class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-white">Add User</button>
     </form>
+  
+    {% if password %}
+    <div class="mt-4 bg-gray-700 text-green-300 p-3 rounded">
+      <p><strong>System account created!</strong></p>
+      <p>Username: <code>{{ new_user }}</code></p>
+      <p>Temporary password: <code>{{ password }}</code></p>
+      <p class="text-sm text-gray-400">(User should change password after first login.)</p>
+    </div>
+    {% endif %}
   </div>
+
 
   <div class="bg-gray-800 p-4 rounded">
     <h2 class="text-xl mb-3">Existing Users</h2>
