@@ -92,3 +92,31 @@ window.addEventListener('load', () => {
     if (e.target.value) loadHistory(e.target.value);
   });
 });
+async function showConfig(name) {
+  const res = await fetch(`/api/config/${name}`);
+  const text = await res.text();
+  alert(`Config for ${name}:\n\n${text}`);
+}
+
+function downloadConfig(name) {
+  window.open(`/api/config/${name}/download`, "_blank");
+}
+
+async function deleteConfig(name) {
+  if (!confirm(`Delete config ${name}?`)) return;
+  const res = await fetch(`/api/config/${name}`, { method: "DELETE" });
+  const json = await res.json();
+  if (json.deleted) alert("Deleted successfully!");
+  else alert("Failed to delete config.");
+}
+
+async function toggleConfig(name, enable) {
+  const formData = new FormData();
+  formData.append("enable", enable);
+  const res = await fetch(`/api/config/${name}/toggle`, {
+    method: "POST",
+    body: formData,
+  });
+  const json = await res.json();
+  if (json.ok) alert(`${enable ? "Enabled" : "Disabled"} ${name}`);
+}
