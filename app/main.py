@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
-from app.database import init_db, query_traffic, get_conn
+from app.database import init_db, query_traffic, get_conn, log_admin_action
 from app.auth import verify_system_user, create_session_for_user, get_username_from_request, logout_token
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.wsmanager import wsmanager
@@ -81,6 +81,7 @@ async def password_post(request: Request, current: str = Form(...), new1: str = 
         return templates.TemplateResponse("password.html", {
             "request": request, "message": "New passwords do not match.", "success": False
         })
+    log_admin_action(username, "change_password", username, "self-service password change")
 
     # Verify current password via PAM
     import pam
