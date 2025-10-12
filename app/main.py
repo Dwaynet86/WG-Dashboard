@@ -67,6 +67,7 @@ async def logout(request: Request):
     r = RedirectResponse("/login")
     r.delete_cookie("session")
     return r
+
 @app.get("/password", response_class=HTMLResponse)
 async def password_get(request: Request):
     username = get_username_from_request(request)
