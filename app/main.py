@@ -142,16 +142,20 @@ async def api_toggle_config(name: str, enable: bool = Form(...)):
 @app.get("/api/clients")
 async def api_clients():
     """
-    Returns a summary of WireGuard clients:
-      - total: number of config files (.conf)
-      - connected: parsed active clients from `pivpn -c`
+    Return live WireGuard status summary.
+    Includes total clients (by .conf count) and currently active peers.
     """
+    connected_list = get_connected_clients()
     total = get_total_clients()
-    connected = get_connected_clients()
+
+    # Connected count = active peers with last_seen != 'offline'
+    active = [c for c in connected_list if c.get("connected")]
+
     return JSONResponse({
         "total": total,
-        "connected": connected
+        "connected": active
     })
+
 
 # --------------------
 # WebSocket endpoint
