@@ -4,7 +4,7 @@ from typing import List, Dict
 import time
 
 CONFIG_DIR = "/etc/wireguard/configs"
-WG_CMD = ["wg", "show", "all", "dump"]  # tab-separated machine-readable output
+WG_CMD = ["sudo", "wg", "show", "all", "dump"]  # tab-separated machine-readable output
 
 
 # ---------------------- Helper functions ----------------------
