@@ -166,15 +166,6 @@ def get_connected_clients() -> List[Dict]:
 
     return clients
     
-def get_connected_clients() -> List[Dict]:
-    """Run pivpn -c and parse output"""
-    try:
-        out = subprocess.check_output(["sudo", "pivpn", "-c"], stderr=subprocess.STDOUT).decode()
-        return parse_pivpn_c_output(out)
-    except Exception as e:
-        print("Error reading connected clients:", e)
-        return []
-
 # --- Config management functions ---
 
 def list_configs() -> List[str]:
