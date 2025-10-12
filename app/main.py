@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
 from app.database import init_db, query_traffic, get_conn, log_admin_action
-from app.auth import verify_system_user, create_session_for_user, get_username_from_request, logout_token
+from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.pivpn import list_configs, read_config, delete_config, toggle_config
 from app.wsmanager import wsmanager
@@ -50,11 +50,13 @@ async def login_get(request: Request):
 
 @app.post("/login")
 async def login_post(response: Response, username: str = Form(...), password: str = Form(...)):
-    if verify_system_user(username, password):
+    if verify_user(username, password):
         token = create_session_for_user(username)
-        r = RedirectResponse("/", status_code=303)
-        r.set_cookie("session", token, httponly=True)
-        return r
+        res = RedirectResponse("/", status_code=303)
+        # set cookie secure flags
+        res.set_cookie(key="session", value=token, httponly=True, samesite="Lax")  # add secure=True if using HTTPS
+        return res
+    # invalid
     return templates.TemplateResponse("login.html", {"request": {}, "error": "Invalid credentials"})
 
 @app.get("/logout")
