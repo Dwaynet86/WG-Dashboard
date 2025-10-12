@@ -84,4 +84,84 @@ def get_connected_clients() -> List[Dict]:
 
     # Call wg show all dump (needs root)
     try:
-        out = subprocess.check_output(WG_CMD, stderr=subprocess.STDOU
+        out = subprocess.check_output(WG_CMD, stderr=subprocess.STDOUT).decode(errors="ignore")
+    except subprocess.CalledProcessError as e:
+        print("wg command failed:", e)
+        return clients
+    except FileNotFoundError:
+        print("wg tool not found (install wireguard-tools)")
+        return clients
+
+    # Each peer line: interface, public_key, preshared_key, endpoint, allowed_ips,
+    # latest_handshake, transfer_rx, transfer_tx, persistent_keepalive
+    for line in out.splitlines():
+        if not line.strip():
+            continue
+        parts = line.split("\t")
+        if len(parts) < 8:
+            continue
+
+        iface, pubkey, preshared, endpoint, allowed_ips, latest_handshake, transfer_rx, transfer_tx = parts[:8]
+
+        # Parse allowed IP
+        vip = None
+        for a in allowed_ips.split(","):
+            a = a.strip()
+            if not a:
+                continue
+            if "/" in a:
+                ip_only = a.split("/")[0]
+            else:
+                ip_only = a
+            if ip_only.count(".") == 3:  # IPv4 only
+                vip = ip_only
+                break
+        if not vip:
+            continue
+
+        # Map to config name
+        name = ip_to_name.get(vip, vip)
+
+        # Bytes
+        try:
+            rx = int(transfer_rx)
+        except Exception:
+            rx = 0
+        try:
+            tx = int(transfer_tx)
+        except Exception:
+            tx = 0
+
+        # Handshake (epoch seconds)
+        connected = False
+        try:
+            hs = int(latest_handshake)
+            if hs > 0:
+                connected = True
+                age = time.time() - hs
+                if age < 60:
+                    last_seen = f"{int(age)}s ago"
+                elif age < 3600:
+                    last_seen = f"{int(age/60)}m ago"
+                elif age < 86400:
+                    last_seen = f"{int(age/3600)}h ago"
+                else:
+                    last_seen = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(hs))
+            else:
+                last_seen = "offline"
+        except Exception:
+            last_seen = "unknown"
+
+        clients.append({
+            "name": name,
+            "remote_ip": endpoint or "",
+            "virtual_ip": vip,
+            "bytes_received": _human_bytes(rx),
+            "bytes_sent": _human_bytes(tx),
+            "rx_raw": rx,
+            "tx_raw": tx,
+            "last_seen": last_seen,
+            "connected": connected
+        })
+
+    return clients
