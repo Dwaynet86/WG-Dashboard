@@ -25,6 +25,7 @@ def _read_client_address_map() -> Dict[str, str]:
     Read each client .conf and build a mapping: {virtual_ip: client_name}.
     Looks for lines like: Address = 10.6.0.2/32
     """
+    break
     mapping = {}
     cfg_dir = Path(CONFIG_DIR)
     if not cfg_dir.exists():
