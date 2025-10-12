@@ -1,5 +1,5 @@
 # app/pivpn.py
-import subprocess
+import subprocess, re
 from typing import List, Dict
 from pathlib import Path
 
@@ -13,41 +13,89 @@ def get_total_clients() -> int:
     except Exception:
         return 0
 
+# app/pivpn.py (replace parse_pivpn_c_output with this)
+import re
+from typing import List, Dict
+
 def parse_pivpn_c_output(raw: str) -> List[Dict]:
-    """Parse output of 'pivpn -c' for connected clients."""
-    lines = [l.strip() for l in raw.strip().splitlines() if l.strip()]
+    """
+    Robust parser for `pivpn -c` output.
+
+    Strategy:
+      - Skip obvious header/footer lines (those that start with ':::', 'Name', or separators).
+      - Stop if we encounter '::: Disabled' (footer).
+      - Use a regex to capture:
+          group1: name (non-space)
+          group2: remote ip (non-space)
+          group3: virtual ip (non-space)
+          group4: the rest of the line (bytes + last seen)
+      - From group4, attempt to pull bytes received (first 1-2 tokens) and bytes sent (next 1-2 tokens),
+        leaving the remainder as "last_seen".
+    """
     clients = []
-    data_section = False
+    if not raw:
+        return clients
+
+    # match first three whitespace-separated columns, rest captured as group 4
+    row_re = re.compile(r'^(\S+)\s+(\S+)\s+(\S+)\s*(.*)$')
+
+    lines = [l.rstrip() for l in raw.splitlines()]
 
     for line in lines:
-        # Skip the header line
-        if line.startswith("::: Connected Clients List"):
-            data_section = True
+        s = line.strip()
+        if not s:
+            continue
+        # ignore header/footer lines
+        if s.startswith(":::"):
+            # Stop entirely if we hit disabled section
+            if s.lower().startswith("::: disabled"):
+                break
+            continue
+        if s.startswith("Name"):
+            continue
+        if s.startswith("---") or s.startswith("----"):
             continue
 
-        # Stop parsing when we reach disabled clients section
-        if line.startswith("::: Disabled clients"):
-            break
-
-        # Skip column headers or separators
-        if (
-            line.startswith("Name") or
-            line.startswith("---") or
-            not data_section
-        ):
+        m = row_re.match(s)
+        if not m:
+            # not a data row
             continue
 
-        # Split the actual data row
-        parts = line.split()
-        if len(parts) < 3:
-            continue
+        name, remote_ip, virtual_ip, rest = m.groups()
+        # 'rest' normally contains: BytesReceivedBytesUnit [maybe two tokens], BytesSentBytesUnit, LastSeen...
+        # Split rest into tokens and try to pick bytes fields heuristically.
+        tokens = rest.split()
+        bytes_rx = "0"
+        bytes_tx = "0"
+        last_seen = "-"
 
-        name = parts[0]
-        remote_ip = parts[1]
-        virtual_ip = parts[2]
-        bytes_rx = " ".join(parts[3:5]) if len(parts) > 4 else "0"
-        bytes_tx = " ".join(parts[5:7]) if len(parts) > 6 else "0"
-        last_seen = " ".join(parts[7:]) if len(parts) > 7 else "-"
+        # heuristics: bytes_rx often at tokens[0..1] (e.g., "12.3", "KB/MB" or "12.3KB"), bytes_tx next
+        # We'll attempt several safe parses.
+        try:
+            if len(tokens) >= 2:
+                # take first two as bytes_rx candidate (like "12.3" + "MB")
+                bytes_rx = tokens[0] + ((" " + tokens[1]) if not tokens[1].upper().startswith(("KB","MB","GB")) else " " + tokens[1])
+            elif len(tokens) >= 1:
+                bytes_rx = tokens[0]
+
+            # try to find bytes_tx after RX tokens: typically tokens[2:4]
+            if len(tokens) >= 4:
+                bytes_tx = tokens[2] + ((" " + tokens[3]) if not tokens[3].upper().startswith(("KB","MB","GB")) else " " + tokens[3])
+                last_seen = " ".join(tokens[4:]) if len(tokens) > 4 else "-"
+            elif len(tokens) == 3:
+                bytes_tx = tokens[2]
+                last_seen = "-"
+            else:
+                # fallback: remaining as last seen
+                last_seen = " ".join(tokens[2:]) if len(tokens) > 2 else "-"
+        except Exception:
+            # any parsing problem -> keep defaults
+            pass
+
+        # final trim
+        bytes_rx = bytes_rx.strip()
+        bytes_tx = bytes_tx.strip()
+        last_seen = last_seen.strip() if last_seen else "-"
 
         clients.append({
             "name": name,
@@ -59,6 +107,7 @@ def parse_pivpn_c_output(raw: str) -> List[Dict]:
         })
 
     return clients
+
 
 
 
