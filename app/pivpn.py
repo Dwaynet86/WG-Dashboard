@@ -14,20 +14,32 @@ def get_total_clients() -> int:
         return 0
 
 def parse_pivpn_c_output(raw: str) -> List[Dict]:
-    """Parse output of pivpn -c for connected clients"""
+    """Parse output of 'pivpn -c' for connected clients."""
     lines = [l.strip() for l in raw.strip().splitlines() if l.strip()]
     clients = []
-    # Skip the first two header lines
-    for line in lines[2:]:
+
+    # Skip lines that are clearly not data rows
+    for line in lines:
+        if (
+            line.startswith(":::") or
+            line.startswith("Name") or
+            line.startswith("-----") or
+            line.startswith("Disabled") or
+            "clients" in line.lower()
+        ):
+            continue
+
         parts = line.split()
         if len(parts) < 3:
             continue
+
         name = parts[0]
         remote_ip = parts[1]
         virtual_ip = parts[2]
         bytes_rx = " ".join(parts[3:5]) if len(parts) > 4 else "0"
         bytes_tx = " ".join(parts[5:7]) if len(parts) > 6 else "0"
         last_seen = " ".join(parts[7:]) if len(parts) > 7 else "-"
+
         clients.append({
             "name": name,
             "remote_ip": remote_ip,
@@ -36,7 +48,9 @@ def parse_pivpn_c_output(raw: str) -> List[Dict]:
             "bytes_sent": bytes_tx,
             "last_seen": last_seen
         })
+
     return clients
+
 
 def get_connected_clients() -> List[Dict]:
     """Run pivpn -c and parse output"""
