@@ -165,7 +165,8 @@ def get_connected_clients() -> List[Dict]:
         })
 
     return clients
-    def get_connected_clients() -> List[Dict]:
+    
+def get_connected_clients() -> List[Dict]:
     """Run pivpn -c and parse output"""
     try:
         out = subprocess.check_output(["sudo", "pivpn", "-c"], stderr=subprocess.STDOUT).decode()
