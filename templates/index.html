@@ -1,74 +1,142 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PiVPN Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script defer src="/static/app.js"></script>
+  <script src="/static/app.js" defer></script>
 </head>
-<body class="bg-gray-900 text-gray-100 p-6">
-  <div class="flex justify-between items-center mb-4">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-gray-800 p-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold">PiVPN Dashboard</h1>
-    <div>
-      <span class="text-gray-400 mr-4">Logged in as: {{ username }}</span>
+    <div class="flex items-center space-x-4">
+      <span class="text-gray-400">Logged in as: {{ username }}</span>
       {% if role == 'admin' %}
-      <a href="/admin" class="text-blue-400 mr-4">Admin</a>
+      <a href="/admin" class="text-blue-400 hover:underline">Admin</a>
       {% endif %}
-      <a href="/password" class="text-blue-400 mr-4">Change Password</a>
-      <a href="/logout" class="text-red-400">Logout</a>
-
+      <a href="/logout" class="text-red-400 hover:underline">Logout</a>
     </div>
-  </div>
+  </header>
 
-  <div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="bg-gray-800 p-4 rounded">
-      <div class="text-sm text-gray-400">Total Clients</div>
-      <div id="totalClients" class="text-3xl font-semibold">0</div>
-    </div>
-    <div class="bg-gray-800 p-4 rounded">
-      <div class="text-sm text-gray-400">Connected</div>
-      <div id="connectedClients" class="text-3xl font-semibold text-green-400">0</div>
-    </div>
-  </div>
-
-  <div class="bg-gray-800 rounded p-4 mb-6">
-    <table class="w-full">
-      <thead class="text-gray-300">
-        <tr>
-          <th class="text-left p-2">Client</th>
-          <th class="p-2">Internal</th>
-          <th class="p-2">External</th>
-          <th class="p-2">Traffic</th>
-          <th class="p-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="clientTable" class="text-gray-200"></tbody>
-    </table>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="bg-gray-800 p-4 rounded">
-      <h3 class="text-gray-200 mb-3">Total Traffic (last 24h)</h3>
-      <canvas id="totalTrafficChart" height="200"></canvas>
-    </div>
-
-    <div class="bg-gray-800 p-4 rounded">
-      <h3 class="text-gray-200 mb-3">Client History</h3>
-      <select id="clientSelect" class="w-full mb-3 p-2 bg-gray-700 rounded"></select>
-      <canvas id="clientChart" height="200"></canvas>
-    </div>
-  </div>
-
-  <!-- QR modal -->
-  <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-    <div class="bg-white p-6 rounded shadow-lg">
-      <h2 id="qrTitle" class="text-black font-semibold mb-3"></h2>
-      <img id="qrImage" src="" alt="QR code" class="mx-auto mb-3"/>
-      <div class="text-right">
-        <button onclick="closeQR()" class="px-3 py-1 bg-gray-700 text-white rounded">Close</button>
+  <!-- Main content -->
+  <main class="flex-1 p-6">
+    <div class="grid grid-cols-2 gap-6 mb-6">
+      <div class="bg-gray-800 p-4 rounded-2xl shadow">
+        <h2 class="text-lg font-semibold mb-2">Total Clients</h2>
+        <p id="totalClients" class="text-3xl font-bold text-blue-400">0</p>
+      </div>
+      <div class="bg-gray-800 p-4 rounded-2xl shadow">
+        <h2 class="text-lg font-semibold mb-2">Connected Clients</h2>
+        <p id="connectedClients" class="text-3xl font-bold text-green-400">0</p>
       </div>
     </div>
+
+    <div class="bg-gray-800 rounded-2xl shadow p-4 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead class="text-gray-400 border-b border-gray-700">
+          <tr>
+            <th class="p-2">Client</th>
+            <th class="p-2">Remote IP</th>
+            <th class="p-2">Virtual IP</th>
+            <th class="p-2">↓ Up / ↑ Down</th>
+            <th class="p-2">Last Seen</th>
+            <th class="p-2 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="clientsTable" class="divide-y divide-gray-700">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- QR Code popup overlay -->
+  <div id="qrOverlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg relative">
+      <button onclick="hideQR()" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4 text-center">WireGuard QR Code</h3>
+      <img id="qrImage" src="" alt="QR Code" class="mx-auto border border-gray-600 rounded-lg">
+    </div>
   </div>
+
+  <script>
+  async function refreshClients() {
+    try {
+      const res = await fetch('/api/clients');
+      const data = await res.json();
+
+      document.getElementById("totalClients").textContent = data.total;
+      document.getElementById("connectedClients").textContent = data.connected.length;
+
+      const table = document.getElementById("clientsTable");
+      table.innerHTML = "";
+
+      data.connected.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="p-2">
+            <div>
+              <div class="font-semibold">${c.name}</div>
+              <div class="text-xs text-gray-400">
+                ${c.remote_ip} → ${c.virtual_ip}<br>
+                ↓ ${c.bytes_received} / ↑ ${c.bytes_sent}
+              </div>
+            </div>
+          </td>
+          <td class="p-2">${c.remote_ip}</td>
+          <td class="p-2">${c.virtual_ip}</td>
+          <td class="p-2 text-sm text-gray-400">↓ ${c.bytes_received}<br>↑ ${c.bytes_sent}</td>
+          <td class="p-2">${c.last_seen}</td>
+          <td class="p-2 text-right space-x-1">
+            <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="showQR('${c.name}')">QR</button>
+            <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="showConfig('${c.name}')">View</button>
+            <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="downloadConfig('${c.name}')">⬇</button>
+            <button class="px-2 py-1 bg-gray-600 rounded text-red-400 hover:bg-gray-700" onclick="deleteConfig('${c.name}')">🗑</button>
+          </td>
+        `;
+        table.appendChild(tr);
+      });
+    } catch (err) {
+      console.error("Failed to update clients:", err);
+    }
+  }
+
+  async function showQR(name) {
+    const img = document.getElementById("qrImage");
+    img.src = `/api/client/${name}/qr`;
+    document.getElementById("qrOverlay").classList.remove("hidden");
+  }
+
+  function hideQR() {
+    document.getElementById("qrOverlay").classList.add("hidden");
+    document.getElementById("qrImage").src = "";
+  }
+
+  async function showConfig(name) {
+    const res = await fetch(`/api/config/${name}`);
+    const text = await res.text();
+    alert(`Config for ${name}:\n\n${text}`);
+  }
+
+  function downloadConfig(name) {
+    window.open(`/api/config/${name}/download`, "_blank");
+  }
+
+  async function deleteConfig(name) {
+    if (!confirm(`Delete config ${name}?`)) return;
+    const res = await fetch(`/api/config/${name}`, { method: "DELETE" });
+    const json = await res.json();
+    if (json.deleted) {
+      alert("Deleted successfully!");
+      refreshClients();
+    } else alert("Failed to delete config.");
+  }
+
+  // Refresh periodically
+  refreshClients();
+  setInterval(refreshClients, 10000);
+  </script>
 </body>
 </html>
