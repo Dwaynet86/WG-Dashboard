@@ -22,13 +22,9 @@ def init_db():
         cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
-            role TEXT NOT NULL
+            role TEXT NOT NULL, 
+            email TEXT, password_hash TEXT
         )""")
-                # Add columns if missing
-        try:
-            cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
-        except Exception:
-            pass
 
         # Audit log
         cur.execute("""
@@ -137,3 +133,17 @@ def get_admin_log(limit=100):
 
         conn.close()
         return [dict(r) for r in rows]
+
+def get_user_by_username(username):
+    with _conn_lock:
+        conn = get_conn()
+        r = conn.execute("SELECT username, role, email, password_hash FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
+        return dict(r) if r else None
+
+def set_user_password_hash(username, password_hash):
+    with _conn_lock:
+        conn = get_conn()
+        conn.execute("UPDATE users SET password_hash = ? WHERE username = ?", (password_hash, username))
+        conn.commit()
+        conn.close()
