@@ -17,18 +17,27 @@ def parse_pivpn_c_output(raw: str) -> List[Dict]:
     """Parse output of 'pivpn -c' for connected clients."""
     lines = [l.strip() for l in raw.strip().splitlines() if l.strip()]
     clients = []
+    data_section = False
 
-    # Skip lines that are clearly not data rows
     for line in lines:
+        # Skip the header line
+        if line.startswith("::: Connected Clients List"):
+            data_section = True
+            continue
+
+        # Stop parsing when we reach disabled clients section
+        if line.startswith("::: Disabled clients"):
+            break
+
+        # Skip column headers or separators
         if (
-            line.startswith(":::") or
             line.startswith("Name") or
-            line.startswith("-----") or
-            line.startswith("Disabled") or
-            "clients" in line.lower()
+            line.startswith("---") or
+            not data_section
         ):
             continue
 
+        # Split the actual data row
         parts = line.split()
         if len(parts) < 3:
             continue
@@ -50,6 +59,7 @@ def parse_pivpn_c_output(raw: str) -> List[Dict]:
         })
 
     return clients
+
 
 
 def get_connected_clients() -> List[Dict]:
