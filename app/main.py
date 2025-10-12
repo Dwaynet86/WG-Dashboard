@@ -1,6 +1,6 @@
 # app/main.py
 from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, Response
-from fastapi.responses import RedirectResponse, HTMLResponse, StreamingResponse, PlainTextResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -139,6 +139,19 @@ async def api_toggle_config(name: str, enable: bool = Form(...)):
     ok = toggle_config(name, enable)
     return {"ok": ok}
 
+@app.get("/api/clients")
+async def api_clients():
+    """
+    Returns a summary of WireGuard clients:
+      - total: number of config files (.conf)
+      - connected: parsed active clients from `pivpn -c`
+    """
+    total = get_total_clients()
+    connected = get_connected_clients()
+    return JSONResponse({
+        "total": total,
+        "connected": connected
+    })
 
 # --------------------
 # WebSocket endpoint
