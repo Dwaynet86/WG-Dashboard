@@ -5,21 +5,23 @@
   <title>Admin - PiVPN Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-{% if success %}
-  <div style="background:#e5ffe5; color:#0a0; padding:0.5em; margin-bottom:1em;">{{ success }}</div>
-{% endif %}
-{% if error %}
-  <div style="background:#ffe5e5; color:#a00; padding:0.5em; margin-bottom:1em;">{{ error }}</div>
-{% endif %}
 <body class="bg-gray-900 text-gray-100 p-6">
+
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Admin Panel</h1>
     <div>
       <a href="/" class="text-blue-400 mr-4">Dashboard</a>
-      <a href="/change-password">Change Password</a>
+      <a href="/change-password" class="text-blue-400 mr-4">Change Password</a>
       <a href="/logout" class="text-red-400">Logout</a>
     </div>
   </div>
+
+  {% if success %}
+    <div class="bg-green-800 text-green-200 p-3 rounded mb-4">{{ success }}</div>
+  {% endif %}
+  {% if error %}
+    <div class="bg-red-800 text-red-200 p-3 rounded mb-4">{{ error }}</div>
+  {% endif %}
 
   <!-- Add New User -->
   <div class="bg-gray-800 p-4 rounded mb-6">
@@ -84,16 +86,17 @@
               <button class="ml-2 bg-blue-600 hover:bg-blue-500 px-2 py-1 rounded text-white text-sm">Save</button>
             </form>
           </td>
-          <td class="p-2 text-center">
+          <td class="p-2 text-center space-x-2">
             {% if u['username'] != username %}
-            <form action="/admin/delete" method="post" onsubmit="return confirm('Delete user {{u['username']}}?');">
+            <form action="/admin/delete" method="post" onsubmit="return confirm('Delete user {{u['username']}}?');" class="inline">
               <input type="hidden" name="username" value="{{ u['username'] }}">
               <button class="bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-white text-sm">Delete</button>
             </form>
-            <form method="post" action="/admin/reset-password" style="display:inline;">
-              <input type="hidden" name="username" value="{{ user.username }}">
-              <button type="submit">Reset Password</button>
-            </form>
+            <button type="button"
+                    onclick="resetPassword('{{ u['username'] }}')"
+                    class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-white text-sm">
+              Reset Password
+            </button>
             {% else %}
             <span class="text-gray-400 text-sm italic">You</span>
             {% endif %}
@@ -124,5 +127,19 @@
       </tbody>
     </table>
   </div>
-</body>
-</html>
+
+  <!-- Password Reset Modal -->
+  <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-xl text-center w-96">
+      <h2 class="text-xl font-semibold mb-3">Temporary Password</h2>
+      <p class="text-gray-300 mb-4">Password for <span id="resetUser" class="font-bold text-white"></span> has been reset to:</p>
+      <div id="resetPass" class="bg-gray-900 p-2 rounded font-mono text-lg mb-4 text-green-400"></div>
+      <button onclick="closeModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-white">Close</button>
+    </div>
+  </div>
+
+  <script>
+  function resetPassword(username) {
+    fetch('/admin/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlenco
