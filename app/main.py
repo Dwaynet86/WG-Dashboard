@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
-from app.database import init_db, query_traffic, get_conn, log_admin_action
+from app.database import init_db, query_traffic, get_conn, log_admin_action,get_user_role
 from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token, change_password
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.pivpn import list_configs, read_config, delete_config, toggle_config
@@ -40,7 +40,7 @@ async def index(request: Request):
         return RedirectResponse("/login")
     role = None
     # role lookup via database (optional)
-    from app.database import get_user_role
+    
     role = get_user_role(username)
     return templates.TemplateResponse("index.html", {"request": request, "username": username, "role": role})
 
