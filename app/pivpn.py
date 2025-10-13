@@ -47,6 +47,7 @@ def _read_client_address_map() -> Dict[str, str]:
                 ip = addr.split("/")[0]
                 mapping[ip] = p.stem
                 break
+    print("mapping")
     print (mapping)
     return mapping
 
