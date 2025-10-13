@@ -92,11 +92,10 @@
               <input type="hidden" name="username" value="{{ u['username'] }}">
               <button class="bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-white text-sm">Delete</button>
             </form>
-            <button type="button"
-                    onclick="resetPassword('{{ u['username'] }}')"
-                    class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-white text-sm">
-              Reset Password
-            </button>
+            <form action="/admin/reset-password" method="post" onsubmit="return confirm('Reser {{u['username']}} password?');"class="inline">
+              <input type="hidden" name="username" value="{{ u['username'] }}">
+              <button class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-white text-sm">Reset Password</button>
+            </form>
             {% else %}
             <span class="text-gray-400 text-sm italic">You</span>
             {% endif %}
