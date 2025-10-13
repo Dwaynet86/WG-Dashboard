@@ -29,6 +29,7 @@ def _read_client_address_map() -> Dict[str, str]:
     mapping = {}
     cfg_dir = Path(CONFIG_DIR)
     if not cfg_dir.exists():
+        print ("Failed to find config_dir")
         return mapping
 
     for p in cfg_dir.glob("*.conf"):
@@ -47,8 +48,7 @@ def _read_client_address_map() -> Dict[str, str]:
                 ip = addr.split("/")[0]
                 mapping[ip] = p.stem
                 break
-    print("mapping")
-    print (mapping)
+
     return mapping
 
 
