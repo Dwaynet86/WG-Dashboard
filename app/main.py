@@ -144,7 +144,7 @@ async def admin_reset_password(request: Request, username: str = Form(...)):
             "admin.html",
             {
                 "request": request,
-                "error": f"Failed to reset password for {username}."
+                "error": f"Failed to reset password for {username}.",
                 "username": user,
                 "users": users,
                 "logs": logs,
