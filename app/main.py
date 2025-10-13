@@ -119,13 +119,29 @@ async def change_password_submit(request: Request, current_password: str = Form(
 async def admin_reset_password(request: Request, username: str = Form(...)):
     admin = require_role(request, roles=("admin",))
     if not admin:
-        return JSONResponse({"error": "Unauthorized"}, status_code=403)
+        return RedirectResponse("/login", status_code=303)
 
+    # Generate a random temporary password
     temp_pass = secrets.token_urlsafe(8)
     if change_password(username, temp_pass):
-        return JSONResponse({"success": True, "password": temp_pass})
+        message = f"Password for '{username}' reset to: {temp_pass}"
+        return templates.TemplateResponse(
+            "admin.html",
+            {
+                "request": request,
+                "users": get_all_users(),  # assuming this lists users
+                "success": message
+            },
+        )
     else:
-        return JSONResponse({"success": False, "error": "Password reset failed"})
+        return templates.TemplateResponse(
+            "admin.html",
+            {
+                "request": request,
+                "users": get_all_users(),
+                "error": f"Failed to reset password for {username}."
+            },
+        )
 
 
 @app.get("/api/configs")
