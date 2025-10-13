@@ -57,12 +57,42 @@ def init_db():
         conn.commit()
         conn.close()
 
-def upsert_user(username, role="viewer"):
+def upsert_user(username, role="viewer", email=None, password_hash=None):
+    """
+    Insert or update a user record in the users table.
+    Adds password_hash and email support.
+    """
     with _conn_lock:
         conn = get_conn()
-        conn.execute("INSERT OR REPLACE INTO users(username, role) VALUES (?,?)", (username, role))
+        # Ensure table exists
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                role TEXT,
+                email TEXT,
+                password_hash TEXT
+            )
+        """)
+        conn.commit()
+
+        # Check if user exists
+        row = conn.execute("SELECT username FROM users WHERE username = ?", (username,)).fetchone()
+
+        if row:
+            conn.execute("""
+                UPDATE users
+                SET role = ?, email = ?, password_hash = COALESCE(?, password_hash)
+                WHERE username = ?
+            """, (role, email, password_hash, username))
+        else:
+            conn.execute("""
+                INSERT INTO users (username, role, email, password_hash)
+                VALUES (?, ?, ?, ?)
+            """, (username, role, email, password_hash))
+
         conn.commit()
         conn.close()
+
 
 def get_user_role(username):
     with _conn_lock:
