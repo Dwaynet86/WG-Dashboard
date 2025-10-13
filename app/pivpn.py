@@ -25,7 +25,6 @@ def _read_client_address_map() -> Dict[str, str]:
     Read each client .conf and build a mapping: {virtual_ip: client_name}.
     Looks for lines like: Address = 10.6.0.2/32
     """
-    return
     mapping = {}
     cfg_dir = Path(CONFIG_DIR)
     if not cfg_dir.exists():
@@ -82,6 +81,7 @@ def get_connected_clients() -> List[Dict]:
     ]
     """
     clients = []
+    print ("Call to _read_client_address_map()")
     ip_to_name = _read_client_address_map()
 
     # Call sudo wg show all dump (needs root)
@@ -120,7 +120,7 @@ def get_connected_clients() -> List[Dict]:
                 break
         if not vip:
             continue
-        print(vip)
+
         # Map to config name
         name = ip_to_name.get(vip, vip)
 
