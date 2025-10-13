@@ -28,7 +28,6 @@ def _read_client_address_map() -> Dict[str, str]:
     mapping = {}
     cfg_dir = Path(CONFIG_DIR)
     if not cfg_dir.exists():
-        print ("Failed to find config_dir")
         return mapping
 
     for p in cfg_dir.glob("*.conf"):
@@ -81,7 +80,6 @@ def get_connected_clients() -> List[Dict]:
     ]
     """
     clients = []
-    print ("Call to _read_client_address_map()")
     ip_to_name = _read_client_address_map()
 
     # Call sudo wg show all dump (needs root)
