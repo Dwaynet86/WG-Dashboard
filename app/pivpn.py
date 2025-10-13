@@ -121,7 +121,6 @@ def get_connected_clients() -> List[Dict]:
             continue
 
         # Map to config name
-        print (ip_to_name)
         name = ip_to_name.get(vip, vip)
 
         # Bytes
