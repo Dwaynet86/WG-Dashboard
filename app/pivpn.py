@@ -86,7 +86,6 @@ def get_connected_clients() -> List[Dict]:
     # Call wg show (needs root)
     try:
         out = subprocess.check_output(WG_CMD, stderr=subprocess.STDOUT).decode(errors="ignore")
-        print (out)
     except subprocess.CalledProcessError as e:
         print("wg command failed:", e)
         return clients
@@ -122,7 +121,8 @@ def get_connected_clients() -> List[Dict]:
             continue
 
         # Map to config name
-        #name = ip_to_name.get(vip, vip)
+        print (ip_to_name)
+        name = ip_to_name.get(vip, vip)
 
         # Bytes
         try:
