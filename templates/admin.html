@@ -92,7 +92,7 @@
               <input type="hidden" name="username" value="{{ u['username'] }}">
               <button class="bg-red-600 hover:bg-red-500 px-2 py-1 rounded text-white text-sm">Delete</button>
             </form>
-            <form action="/admin/reset-password" method="post" onsubmit="return confirm('Reser {{u['username']}} password?');"class="inline">
+            <form action="/admin/reset-password" method="post" onsubmit="return confirm('Reset {{u['username']}} password?');"class="inline">
               <input type="hidden" name="username" value="{{ u['username'] }}">
               <button class="bg-yellow-600 hover:bg-yellow-500 px-2 py-1 rounded text-white text-sm">Reset Password</button>
             </form>
@@ -125,16 +125,6 @@
         {% endfor %}
       </tbody>
     </table>
-  </div>
-
-  <!-- Password Reset Modal -->
-  <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
-    <div class="bg-gray-800 p-6 rounded-lg shadow-xl text-center w-96">
-      <h2 class="text-xl font-semibold mb-3">Temporary Password</h2>
-      <p class="text-gray-300 mb-4">Password for <span id="resetUser" class="font-bold text-white"></span> has been reset to:</p>
-      <div id="resetPass" class="bg-gray-900 p-2 rounded font-mono text-lg mb-4 text-green-400"></div>
-      <button onclick="closeModal()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-white">Close</button>
-    </div>
   </div>
 
   <script>
