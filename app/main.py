@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
 from app.database import init_db, query_traffic, get_conn, log_admin_action
-from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token
+from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token,change_password
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.pivpn import list_configs, read_config, delete_config, toggle_config
 from app.wsmanager import wsmanager
@@ -75,38 +75,46 @@ async def password_get(request: Request):
         return RedirectResponse("/login")
     return templates.TemplateResponse("password.html", {"request": request, "message": None, "success": False})
 
-@app.post("/password", response_class=HTMLResponse)
-async def password_post(request: Request, current: str = Form(...), new1: str = Form(...), new2: str = Form(...)):
+@app.get("/change-password")
+async def change_password_form(request: Request):
     username = get_username_from_request(request)
     if not username:
-        return RedirectResponse("/login")
+        return RedirectResponse("/login", status_code=303)
+    return templates.TemplateResponse("change_password.html", {"request": request, "username": username})
 
-    if new1 != new2:
-        return templates.TemplateResponse("password.html", {
-            "request": request, "message": "New passwords do not match.", "success": False
-        })
-    log_admin_action(username, "change_password", username, "self-service password change")
 
-    # Verify current password via PAM
-    import pam
-    p = pam.pam()
-    if not p.authenticate(username, current):
-        return templates.TemplateResponse("password.html", {
-            "request": request, "message": "Current password is incorrect.", "success": False
-        })
+@app.post("/change-password")
+async def change_password_submit(request: Request, current_password: str = Form(...), new_password: str = Form(...), confirm_password: str = Form(...)):
+    username = get_username_from_request(request)
+    if not username:
+        return RedirectResponse("/login", status_code=303)
 
-    # Change password via chpasswd
-    try:
-        subprocess.run(["sudo", "chpasswd"], input=f"{username}:{new1}".encode(), check=True)
-        message = "Password successfully changed."
-        success = True
-    except subprocess.CalledProcessError as e:
-        message = "Password change failed."
-        success = False
+    # Verify current password
+    if not verify_user(username, current_password):
+        return templates.TemplateResponse(
+            "change_password.html",
+            {"request": request, "username": username, "error": "Current password is incorrect."},
+        )
 
-    return templates.TemplateResponse("password.html", {
-        "request": request, "message": message, "success": success
-    })
+    # Validate new passwords match
+    if new_password != confirm_password:
+        return templates.TemplateResponse(
+            "change_password.html",
+            {"request": request, "username": username, "error": "New passwords do not match."},
+        )
+
+    # Update the password
+    if change_password(username, new_password):
+        return templates.TemplateResponse(
+            "change_password.html",
+            {"request": request, "username": username, "success": "Password changed successfully."},
+        )
+    else:
+        return templates.TemplateResponse(
+            "change_password.html",
+            {"request": request, "username": username, "error": "Failed to change password."},
+        )
+
 
 @app.get("/api/configs")
 async def api_configs():
