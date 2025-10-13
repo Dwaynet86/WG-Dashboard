@@ -4,7 +4,7 @@ from typing import List, Dict
 import time
 
 CONFIG_DIR = "/etc/wireguard/configs"
-WG_CMD = ["sudo", "wg", "show", "all", "dump"]  # tab-separated machine-readable output
+WG_CMD = ["sudo", "wg", "show"]  # tab-separated machine-readable output
 
 
 # ---------------------- Helper functions ----------------------
@@ -63,7 +63,7 @@ def get_total_clients() -> int:
 
 def get_connected_clients() -> List[Dict]:
     """
-    Use `wg show all dump` to list active peers and data usage.
+    Use `wg show` to list active peers and data usage.
 
     Returns a list of dicts:
     [
@@ -83,9 +83,10 @@ def get_connected_clients() -> List[Dict]:
     clients = []
     ip_to_name = _read_client_address_map()
 
-    # Call wg show all dump (needs root)
+    # Call wg show (needs root)
     try:
         out = subprocess.check_output(WG_CMD, stderr=subprocess.STDOUT).decode(errors="ignore")
+        print (out)
     except subprocess.CalledProcessError as e:
         print("wg command failed:", e)
         return clients
@@ -121,7 +122,7 @@ def get_connected_clients() -> List[Dict]:
             continue
 
         # Map to config name
-        name = ip_to_name.get(vip, vip)
+        #name = ip_to_name.get(vip, vip)
 
         # Bytes
         try:
