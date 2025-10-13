@@ -7,6 +7,7 @@ import uvicorn
 import asyncio
 from app.database import init_db, query_traffic, get_conn, log_admin_action,get_user_role
 from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token, change_password
+from app.admin import require_admin
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.pivpn import list_configs, read_config, delete_config, toggle_config
 from app.wsmanager import wsmanager
@@ -117,9 +118,10 @@ async def change_password_submit(request: Request, current_password: str = Form(
 
 @app.post("/admin/reset-password")
 async def admin_reset_password(request: Request, username: str = Form(...)):
-    admin = require_role(request, roles=("admin",))
+    admin = require_admin(request)
     if not admin:
-        return RedirectResponse("/login", status_code=303)
+        return RedirectResponse("/")
+
 
     # Generate a random temporary password
     temp_pass = secrets.token_urlsafe(8)
