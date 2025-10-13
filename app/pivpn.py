@@ -119,7 +119,7 @@ def get_connected_clients() -> List[Dict]:
                 break
         if not vip:
             continue
-
+        print(vip)
         # Map to config name
         name = ip_to_name.get(vip, vip)
 
