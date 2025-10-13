@@ -82,7 +82,8 @@ def get_connected_clients() -> List[Dict]:
     """
     clients = []
     ip_to_name = _read_client_address_map()
-
+    print ("ip to name:")
+    print (ip_to_name)
     # Call sudo wg show all dump (needs root)
     try:
         out = subprocess.check_output(WG_CMD, stderr=subprocess.STDOUT).decode(errors="ignore")
