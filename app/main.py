@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
-from app.database import init_db, query_traffic, get_conn, log_admin_action,get_user_role
+from app.database import init_db, query_traffic, get_conn, log_admin_action, get_user_role, get_admin_log
 from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token, change_password
 from app.admin import require_admin
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
@@ -121,8 +121,13 @@ async def admin_reset_password(request: Request, username: str = Form(...)):
     admin = require_admin(request)
     if not admin:
         return RedirectResponse("/")
-
-
+    
+    conn = get_conn()
+    users = conn.execute("SELECT username, role, email FROM users ORDER BY username").fetchall()
+    conn.close()
+    
+    logs = get_admin_log(limit=30)
+    
     # Generate a random temporary password
     temp_pass = secrets.token_urlsafe(8)
     if change_password(username, temp_pass):
