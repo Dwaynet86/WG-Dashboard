@@ -5,6 +5,12 @@
   <title>Admin - PiVPN Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+{% if success %}
+  <div style="background:#e5ffe5; color:#0a0; padding:0.5em; margin-bottom:1em;">{{ success }}</div>
+{% endif %}
+{% if error %}
+  <div style="background:#ffe5e5; color:#a00; padding:0.5em; margin-bottom:1em;">{{ error }}</div>
+{% endif %}
 <body class="bg-gray-900 text-gray-100 p-6">
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Admin Panel</h1>
