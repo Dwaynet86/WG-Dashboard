@@ -6,12 +6,12 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 import asyncio
 from app.database import init_db, query_traffic, get_conn, log_admin_action
-from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token,change_password
+from app.auth import verify_user, create_session_for_user, get_username_from_request, logout_token, change_password
 from app.pivpn import get_connected_clients, get_total_clients, get_qr_png
 from app.pivpn import list_configs, read_config, delete_config, toggle_config
 from app.wsmanager import wsmanager
 from app import admin
-import subprocess
+import subprocess, secrets
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -113,6 +113,34 @@ async def change_password_submit(request: Request, current_password: str = Form(
         return templates.TemplateResponse(
             "change_password.html",
             {"request": request, "username": username, "error": "Failed to change password."},
+        )
+
+@app.post("/admin/reset-password")
+async def admin_reset_password(request: Request, username: str = Form(...)):
+    admin = require_role(request, roles=("admin",))
+    if not admin:
+        return RedirectResponse("/login", status_code=303)
+
+    # Generate a random temporary password
+    temp_pass = secrets.token_urlsafe(8)
+    if change_password(username, temp_pass):
+        message = f"Password for '{username}' reset to: {temp_pass}"
+        return templates.TemplateResponse(
+            "admin.html",
+            {
+                "request": request,
+                "users": get_all_users(),  # assuming this lists users
+                "success": message
+            },
+        )
+    else:
+        return templates.TemplateResponse(
+            "admin.html",
+            {
+                "request": request,
+                "users": get_all_users(),
+                "error": f"Failed to reset password for {username}."
+            },
         )
 
 
