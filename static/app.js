@@ -28,13 +28,26 @@ function populateClients(clients) {
     clientsList.push(c.name);
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="p-2">${c.name}<br><small class="text-gray-400">${c.last_seen}</small></td>
-      <td class="p-2">${c.virtual_ip || '-'}</td>
-      <td class="p-2">${c.remote_ip || '-'}</td>
-      <td class="p-2">⬇ ${c.bytes_received || '0'}<br>⬆ ${c.bytes_sent || '0'}</td>
       <td class="p-2">
-        <button class="px-2 py-1 bg-gray-600 rounded" onclick="showQR('${c.name}')">QR</button>
-        <button class="px-2 py-1 bg-gray-600 rounded" onclick="loadHistory('${c.name}')">History</button>
+        <div class="${!c.connected ? 'text-red-400' : ''}">
+          <div class="font-semibold">${c.name}</div>
+          <div class="text-xs text-gray-400">
+            ${c.remote_ip} → ${c.virtual_ip}
+          </div>
+        </div>
+      </td>
+      <td class="p-2">${c.remote_ip}</td>
+      <td class="p-2">${c.virtual_ip}</td>
+      <td class="p-2 text-sm">
+        <span class="text-blue-400">↓ ${c.bytes_received || '0'}</span><br>
+        <span class="text-red-400">↑ ${c.bytes_sent || '0'}</span>
+      </td>
+      <td class="p-2 ${c.connected ? 'text-green-400' : 'text-red-400'}">${c.last_seen}</td>
+      <td class="p-2 text-right space-x-1">
+        <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="showQR('${c.name}')">QR</button>
+        <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="showConfig('${c.name}')">View</button>
+        <button class="px-2 py-1 bg-gray-600 rounded hover:bg-gray-500" onclick="downloadConfig('${c.name}')">⬇</button>
+        <button class="px-2 py-1 bg-gray-600 rounded text-red-400 hover:bg-gray-700" onclick="deleteConfig('${c.name}')">🗑</button>
       </td>
     `;
     tbody.appendChild(tr);
