@@ -216,7 +216,8 @@ async def websocket_endpoint(websocket: WebSocket):
 async def api_clients():
     clients = get_connected_clients()
     total = get_total_clients()
-    return {"total": total, "connected": clients}
+    active = [c for c in clients if c.get("connected")]
+    return {"total": total, "connected": active, "clients": clients}
 
 @app.get("/api/traffic/{client_name}")
 async def api_traffic(client_name: str, hours: int = 24):
