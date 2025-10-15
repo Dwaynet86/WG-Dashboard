@@ -52,6 +52,15 @@
     </div>
   </main>
 
+  <!-- Config view modal -->
+  <div id="configOverlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-auto relative">
+      <button onclick="hideConfig()" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4 text-center">Config for <span id="configName"></span></h3>
+      <pre id="configText" class="text-sm whitespace-pre-wrap break-all text-gray-100 bg-gray-900 p-4 rounded"></pre>
+    </div>
+  </div>
+
   <!-- QR Code popup overlay -->
   <div id="qrOverlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
     <div class="bg-gray-800 p-6 rounded-2xl shadow-lg relative max-h-full overflow-auto">
@@ -122,9 +131,22 @@
 
 
   async function showConfig(name) {
+    document.getElementById("configName").innerText = name;
     const res = await fetch(`/api/config/${name}`);
+    if (!res.ok) {
+      alert("Config not found.");
+      return;
+    }
     const text = await res.text();
-    alert(`Config for ${name}:\n\n${text}`);
+    document.getElementById("configText").innerText = text;
+    document.getElementById("configOverlay").classList.remove("hidden");
+    document.getElementById("configOverlay").classList.add("flex");
+  }
+  
+  function hideConfig() {
+    document.getElementById("configOverlay").classList.add("hidden");
+    document.getElementById("configOverlay").classList.remove("flex");
+    document.getElementById("configText").innerText = "";
   }
 
   function downloadConfig(name) {
