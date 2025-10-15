@@ -109,14 +109,17 @@
 
   async function showQR(name) {
     const img = document.getElementById("qrImage");
-    img.src = `/api/client/${name}/qr`;
+    img.src = `/api/client/${name}/qr?${Date.now()}`;  // cache-bust
     document.getElementById("qrOverlay").classList.remove("hidden");
+    document.getElementById("qrOverlay").classList.add("flex");
   }
 
   function hideQR() {
     document.getElementById("qrOverlay").classList.add("hidden");
-    document.getElementById("qrImage").src = "";
+    document.getElementById("qrOverlay").classList.remove("flex");
+    document.getElementById("qrImage").src = ""; 
   }
+
 
   async function showConfig(name) {
     const res = await fetch(`/api/config/${name}`);
