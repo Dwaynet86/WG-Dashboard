@@ -12,5 +12,5 @@ else
   pip install -r "$DIR/requirements.txt"
 fi
 
-echo "✅ Starting PiVPN Dashboard..."
+echo "✅ Starting WG Dashboard..."
 exec uvicorn app.main:app --host 0.0.0.0 --port 8000
