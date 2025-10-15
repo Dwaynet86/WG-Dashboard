@@ -69,13 +69,56 @@ async function refreshClients() {
   }
 }
 
-// Modal & actions (QR, config, download, delete) unchanged
-async function showQR(name) { /* ... */ }
-function hideQR() { /* ... */ }
-async function showConfig(name) { /* ... */ }
-function hideConfig() { /* ... */ }
-function downloadConfig(name) { /* ... */ }
-async function deleteConfig(name) { /* ... */ }
+async function showQR(name) {
+  const img = document.getElementById("qrImage");
+  img.src = `/api/client/${name}/qr?${Date.now()}`;  // cache-bust
+  document.getElementById("qrOverlay").classList.remove("hidden");
+  document.getElementById("qrOverlay").classList.add("flex");
+}
+
+function hideQR() {
+  document.getElementById("qrOverlay").classList.add("hidden");
+  document.getElementById("qrOverlay").classList.remove("flex");
+  document.getElementById("qrImage").src = ""; 
+}
+
+
+async function showConfig(name) {
+  document.getElementById("configName").innerText = name;
+  const res = await fetch(`/api/config/${name}`);
+  if (!res.ok) {
+    alert("Config not found.");
+    return;
+  }
+  const text = await res.text();
+  document.getElementById("configText").innerText = text;
+  document.getElementById("configOverlay").classList.remove("hidden");
+  document.getElementById("configOverlay").classList.add("flex");
+}
+
+function hideConfig() {
+  document.getElementById("configOverlay").classList.add("hidden");
+  document.getElementById("configOverlay").classList.remove("flex");
+  document.getElementById("configText").innerText = "";
+}
+
+function downloadConfig(name) {
+  window.open(`/api/config/${name}/download`, "_blank");
+}
+
+async function deleteConfig(name) {
+  if (!confirm(`Delete config ${name}?`)) return;
+  const res = await fetch(`/api/config/${name}`, { method: "DELETE" });
+  const json = await res.json();
+  if (json.deleted) {
+    alert("Deleted successfully!");
+    refreshClients();
+  } else alert("Failed to delete config.");
+}
+
+// Refresh periodically
+refreshClients();
+setInterval(refreshClients, 10000);
 
 // Startup
 window.addEventListener('load', () => {
