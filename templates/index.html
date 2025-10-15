@@ -11,12 +11,20 @@
   <!-- Header -->
   <header class="bg-gray-800 p-4 flex justify-between items-center">
     <h1 class="text-2xl font-bold">WG Dashboard</h1>
-    <div class="flex items-center space-x-4">
-      <span class="text-gray-400">Logged in as: {{ username }}</span>
-      {% if role == 'admin' %}
-      <a href="/admin" class="text-blue-400 hover:underline">Admin</a>
-      {% endif %}
-      <a href="/logout" class="text-red-400 hover:underline">Logout</a>
+    <!-- Hamburger menu wrapper -->
+    <div class="relative inline-block">
+      <button id="menuToggle" class="p-2 focus:outline-none">
+        <!-- Hamburger icon -->
+        <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <div id="menuDropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow-lg hidden z-50">
+        <a href="/" class="block px-4 py-2 text-gray-100 hover:bg-gray-700">Dashboard</a>
+        <a href="/change-password" class="block px-4 py-2 text-gray-100 hover:bg-gray-700">Change Password</a>
+        <a href="/logout" class="block px-4 py-2 text-red-400 hover:bg-red-600">Logout</a>
+      </div>
     </div>
   </header>
 
