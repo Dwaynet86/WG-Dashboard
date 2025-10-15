@@ -194,21 +194,6 @@ async def api_toggle_config(name: str, enable: bool = Form(...)):
     ok = toggle_config(name, enable)
     return {"ok": ok}
 
-@app.get("/api/clients")
-async def api_clients():
-    """
-    Return live WireGuard status summary.
-    Includes total clients (by .conf count) and currently active peers.
-    """
-    connected_list = get_connected_clients()
-    total = get_total_clients()
-    # Connected count = active peers with last_seen != 'offline'
-    active = [c for c in connected_list if c.get("connected")]
-
-    return JSONResponse({
-        "total": total,
-        "connected": active
-    })
 
 # --------------------
 # WebSocket endpoint
