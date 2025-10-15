@@ -202,7 +202,7 @@ async def api_clients():
     """
     connected_list = get_connected_clients()
     total = get_total_clients()
-
+    print (connected_list)
     # Connected count = active peers with last_seen != 'offline'
     active = [c for c in connected_list if c.get("connected")]
 
