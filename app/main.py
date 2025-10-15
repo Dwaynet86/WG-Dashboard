@@ -214,9 +214,13 @@ async def websocket_endpoint(websocket: WebSocket):
 # --------------------
 @app.get("/api/clients")
 async def api_clients():
-    clients = get_connected_clients()
-    total = get_total_clients()
-    active = [c for c in clients if c.get("connected")]
+    clients = get_connected_clients() # a list of client configs
+    total = get_total_clients() # contains the total number of config files
+    active = [c for c in clients if c.get("connected")] # contans the active clients
+
+    print ("clients:", clients)
+    print ("Total:", total)
+    print ("Active:", active)
     return {"total": total, "connected": active, "clients": clients}
 
 @app.get("/api/traffic/{client_name}")
