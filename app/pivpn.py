@@ -136,9 +136,11 @@ def get_connected_clients() -> List[Dict]:
         connected = False
         try:
             hs = int(latest_handshake)
-            if hs > 0:
+            age = time.time() - hs
+            if hs > 0 and age <= 300:  # within 5 minutes
                 connected = True
-                age = time.time() - hs
+            # Then format last_seen (as before)
+            if hs > 0:
                 if age < 60:
                     last_seen = f"{int(age)}s ago"
                 elif age < 3600:
