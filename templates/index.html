@@ -117,7 +117,7 @@
   }
 
   async function showQR(name) {
-    const img = document.getElementById("qrImage");
+    const img = document.getElementById("qrImage").innerText = name;
     img.src = `/api/client/${name}/qr?${Date.now()}`;  // cache-bust
     document.getElementById("qrOverlay").classList.remove("hidden");
     document.getElementById("qrOverlay").classList.add("flex");
