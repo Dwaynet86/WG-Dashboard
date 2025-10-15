@@ -54,7 +54,7 @@
 
   <!-- QR Code popup overlay -->
   <div id="qrOverlay" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg relative">
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg relative max-h-full overflow-auto">
       <button onclick="hideQR()" class="absolute top-2 right-3 text-gray-400 hover:text-white text-xl">&times;</button>
       <h3 class="text-xl font-bold mb-4 text-center">WireGuard QR Code</h3>
       <img id="qrImage" src="" alt="QR Code" class="mx-auto border border-gray-600 rounded-lg">
