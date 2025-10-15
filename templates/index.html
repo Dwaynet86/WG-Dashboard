@@ -70,7 +70,7 @@
       document.getElementById("totalClients").textContent = data.total;
       document.getElementById("connectedClients").textContent = data.connected.length;
 
-      const table = document.getElementById("clientsTable");
+      const table = document.getElementById("clientTable");
       table.innerHTML = "";
 
       data.connected.forEach(c => {
