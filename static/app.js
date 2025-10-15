@@ -31,7 +31,7 @@ function populateClients(clients) {
       <td class="p-2">${c.name}<br><small class="text-gray-400">${c.last_seen}</small></td>
       <td class="p-2">${c.virtual_ip || '-'}</td>
       <td class="p-2">${c.remote_ip || '-'}</td>
-      <td class="p-2 text-blue-500">⬇ ${c.bytes_received || '0'}<br class="text-red-500">⬆ ${c.bytes_sent || '0'}</td>
+      <td class="p-2">⬇ ${c.bytes_received || '0'}<br class="text-red-500">⬆ ${c.bytes_sent || '0'}</td>
       <td class="p-2">
         <button class="px-2 py-1 bg-gray-600 rounded" onclick="showQR('${c.name}')">QR</button>
         <button class="px-2 py-1 bg-gray-600 rounded" onclick="loadHistory('${c.name}')">History</button>
