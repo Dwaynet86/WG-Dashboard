@@ -2,12 +2,15 @@ let socket;
 let clientsList = [];
 
 function populateClients(clients) {
+  // Get the table body
   const tbody = document.getElementById('clientTable');
+  if (!tbody) {
+    console.warn("populateClients: clientTable not found");
+    return;
+  }
   tbody.innerHTML = "";
-  const select = document.getElementById('clientSelect');
-  select.innerHTML = "<option value=''>-- choose client --</option>";
+
   clients.forEach(c => {
-    clientsList.push(c.name);
     const tr = document.createElement('tr');
     if (!c.connected) {
       tr.classList.add("opacity-50");
@@ -34,15 +37,10 @@ function populateClients(clients) {
       </td>
     `;
     tbody.appendChild(tr);
-
-    const opt = document.createElement('option');
-    opt.value = c.name;
-    opt.text = c.name;
-    select.appendChild(opt);
   });
 }
 
-async function connectWS() {
+function connectWS() {
   socket = new WebSocket(((location.protocol === 'https:') ? 'wss://' : 'ws://') + window.location.host + '/ws/clients');
   socket.onopen = () => console.log('WS open');
   socket.onclose = () => setTimeout(connectWS, 3000);
@@ -59,7 +57,6 @@ async function refreshClients() {
     const res = await fetch('/api/clients');
     const data = await res.json();
     document.getElementById("totalClients").textContent = data.total;
-    // Determine connected count
     const arr = data.clients || [];
     const active = arr.filter(c => c.connected);
     document.getElementById("connectedClients").textContent = active.length;
@@ -71,35 +68,64 @@ async function refreshClients() {
 
 async function showQR(name) {
   const img = document.getElementById("qrImage");
-  img.src = `/api/client/${name}/qr?${Date.now()}`;  // cache-bust
-  document.getElementById("qrOverlay").classList.remove("hidden");
-  document.getElementById("qrOverlay").classList.add("flex");
+  if (!img) {
+    console.error("showQR: qrImage element not found");
+    return;
+  }
+  img.src = `/api/client/${name}/qr?${Date.now()}`;
+  const overlay = document.getElementById("qrOverlay");
+  if (!overlay) {
+    console.error("showQR: qrOverlay element not found");
+    return;
+  }
+  overlay.classList.remove("hidden");
+  overlay.classList.add("flex");
 }
 
 function hideQR() {
-  document.getElementById("qrOverlay").classList.add("hidden");
-  document.getElementById("qrOverlay").classList.remove("flex");
-  document.getElementById("qrImage").src = ""; 
+  const overlay = document.getElementById("qrOverlay");
+  if (overlay) {
+    overlay.classList.add("hidden");
+    overlay.classList.remove("flex");
+  }
+  const img = document.getElementById("qrImage");
+  if (img) {
+    img.src = "";
+  }
 }
 
-
 async function showConfig(name) {
-  document.getElementById("configName").innerText = name;
+  const nameSpan = document.getElementById("configName");
+  if (nameSpan) {
+    nameSpan.innerText = name;
+  }
   const res = await fetch(`/api/config/${name}`);
   if (!res.ok) {
     alert("Config not found.");
     return;
   }
   const text = await res.text();
-  document.getElementById("configText").innerText = text;
-  document.getElementById("configOverlay").classList.remove("hidden");
-  document.getElementById("configOverlay").classList.add("flex");
+  const pre = document.getElementById("configText");
+  if (pre) {
+    pre.innerText = text;
+  }
+  const overlay = document.getElementById("configOverlay");
+  if (overlay) {
+    overlay.classList.remove("hidden");
+    overlay.classList.add("flex");
+  }
 }
 
 function hideConfig() {
-  document.getElementById("configOverlay").classList.add("hidden");
-  document.getElementById("configOverlay").classList.remove("flex");
-  document.getElementById("configText").innerText = "";
+  const overlay = document.getElementById("configOverlay");
+  if (overlay) {
+    overlay.classList.add("hidden");
+    overlay.classList.remove("flex");
+  }
+  const pre = document.getElementById("configText");
+  if (pre) {
+    pre.innerText = "";
+  }
 }
 
 function downloadConfig(name) {
@@ -113,21 +139,17 @@ async function deleteConfig(name) {
   if (json.deleted) {
     alert("Deleted successfully!");
     refreshClients();
-  } else alert("Failed to delete config.");
+  } else {
+    alert("Failed to delete config.");
+  }
 }
 
-// Refresh periodically
-refreshClients();
-setInterval(refreshClients, 10000);
-
-// Startup
+// Startup logic
 window.addEventListener('load', () => {
   refreshClients();
   connectWS();
-  document.getElementById('clientSelect').addEventListener('change', (e) => {
-    if (e.target.value) loadHistory(e.target.value);
-  });
 });
+
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("DOM loaded, menuToggle:", document.getElementById("menuToggle"), "menuDropdown:", document.getElementById("menuDropdown"));
