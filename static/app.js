@@ -9,7 +9,7 @@ function populateClients(clients) {
     return;
   }
   tbody.innerHTML = "";
-
+  console.log("PopulateClents data:", clients);
   clients.forEach(c => {
     const tr = document.createElement('tr');
     if (!c.connected) {
