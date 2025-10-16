@@ -152,13 +152,11 @@ window.addEventListener('load', () => {
 
 
 window.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM loaded, menuToggle:", document.getElementById("menuToggle"), "menuDropdown:", document.getElementById("menuDropdown"));
-
+  
   const btn = document.getElementById("menuToggle");
   const dropdown = document.getElementById("menuDropdown");
 
   btn.addEventListener("click", (e) => {
-    console.log("hamburger clicked");
     e.stopPropagation();
     dropdown.classList.toggle("hidden");
   });
