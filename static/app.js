@@ -45,8 +45,9 @@ function connectWS() {
   socket.onopen = () => console.log('WS open');
   socket.onclose = () => setTimeout(connectWS, 3000);
   socket.onmessage = (ev) => {
-    console.log("WS data:", data);
     const data = JSON.parse(ev.data);
+    console.log("WS data:", data);
+    let arr = data.list || data.clients;
     console.log("Using arr for clients:", arr);
     document.getElementById('totalClients').textContent = data.total;
     document.getElementById('connectedClients').textContent = (data.connected || []).length;
