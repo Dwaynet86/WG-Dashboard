@@ -47,8 +47,8 @@ function connectWS() {
   socket.onmessage = (ev) => {
     const data = JSON.parse(ev.data);
     document.getElementById('totalClients').textContent = data.total;
-    document.getElementById('connectedClients').textContent = data.connected;
-    populateClients(data.list || data.clients || []);
+    document.getElementById('connectedClients').textContent = (data.connected || []).length;
+    populateClients(data.clients || data.connected);
   };
 }
 
@@ -58,7 +58,7 @@ async function refreshClients() {
     const data = await res.json();
     document.getElementById("totalClients").textContent = data.total;
     const arr = data.clients || [];
-    const active = arr.filter(c => c.connected);
+    const active = (data.connected || arr.filter(c => c.connected));
     document.getElementById("connectedClients").textContent = active.length;
     populateClients(arr);
   } catch (err) {
