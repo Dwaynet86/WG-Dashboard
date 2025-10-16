@@ -9,10 +9,20 @@
 
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Admin Panel</h1>
-    <div>
-      <a href="/" class="text-blue-400 mr-4">Dashboard</a>
-      <a href="/change-password" class="text-blue-400 mr-4">Change Password</a>
-      <a href="/logout" class="text-red-400">Logout</a>
+    <!-- Hamburger menu wrapper -->
+    <div class="relative inline-block">
+      <button id="menuToggle" class="p-2 focus:outline-none">
+        <!-- Hamburger icon -->
+        <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <div id="menuDropdown" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow-lg hidden z-50">
+        <a href="/" class="block px-4 py-2 text-gray-100 hover:bg-gray-700">Dashboard</a>
+        <a href="/change-password" class="block px-4 py-2 text-gray-100 hover:bg-gray-700">Change Password</a>
+        <a href="/logout" class="block px-4 py-2 text-red-400 hover:bg-red-600">Logout</a>
+      </div>
     </div>
   </div>
 
