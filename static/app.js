@@ -9,7 +9,6 @@ function populateClients(clients) {
     return;
   }
   tbody.innerHTML = "";
-  console.log("PopulateClients data:", clients);
   clients.forEach(c => {
     const tr = document.createElement('tr');
     if (!c.connected) {
@@ -46,7 +45,6 @@ function connectWS() {
   socket.onclose = () => setTimeout(connectWS, 3000);
   socket.onmessage = (ev) => {
     const data = JSON.parse(ev.data);
-    console.log("WS data:", data);
     document.getElementById('totalClients').textContent = data.total;
     document.getElementById('connectedClients').textContent = (data.connected );
     populateClients(data.list);
