@@ -50,7 +50,7 @@ function connectWS() {
     document.getElementById('totalClients').textContent = data.total;
     document.getElementById('connectedClients').textContent = (data.connected );
     console.log("WS Clients:",data.clients);
-    populateClients(data.clients);
+    populateClients(data.clients || []);
   };
 }
 
