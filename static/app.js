@@ -48,7 +48,7 @@ function connectWS() {
     const data = JSON.parse(ev.data);
     console.log("WS data:", data);
     document.getElementById('totalClients').textContent = data.total;
-    document.getElementById('connectedClients').textContent = (data.connected || []).length;
+    document.getElementById('connectedClients').textContent = (data.connected );
     populateClients(data.clients || data.connected);
   };
 }
