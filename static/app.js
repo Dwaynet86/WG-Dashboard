@@ -128,6 +128,7 @@ window.addEventListener('load', () => {
     if (e.target.value) loadHistory(e.target.value);
   });
 });
+
 window.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("menuToggle");
   const dropdown = document.getElementById("menuDropdown");
@@ -138,7 +139,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   // Close the menu when clicking outside
-  window.addEventListener("click", (e) => {
+window.addEventListener("click", (e) => {
     if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
       dropdown.classList.add("hidden");
     }
