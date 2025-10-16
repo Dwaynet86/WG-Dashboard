@@ -4,8 +4,7 @@ let clientsList = [];
 function populateClients(clients) {
   const tbody = document.getElementById('clientTable');
   tbody.innerHTML = "";
-  const select = document.getElementById('clientSelect');
-  select.innerHTML = "<option value=''>-- choose client --</option>";
+
   clients.forEach(c => {
     clientsList.push(c.name);
     const tr = document.createElement('tr');
