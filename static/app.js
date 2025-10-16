@@ -46,6 +46,7 @@ function connectWS() {
   socket.onmessage = (ev) => {
     const data = JSON.parse(ev.data);
     document.getElementById('totalClients').textContent = data.total;
+    console.log("Active:",data);
     document.getElementById('connectedClients').textContent = (data.connected );
     populateClients(data.list);
   };
