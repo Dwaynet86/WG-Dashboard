@@ -49,6 +49,7 @@ function connectWS() {
     console.log("WS data:", data);
     document.getElementById('totalClients').textContent = data.total;
     document.getElementById('connectedClients').textContent = (data.connected );
+    console.log("WS Clients:",data.clients);
     populateClients(data.clients);
   };
 }
