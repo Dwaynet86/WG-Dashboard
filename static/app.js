@@ -9,7 +9,7 @@ function populateClients(clients) {
     return;
   }
   tbody.innerHTML = "";
-  console.log("PopulateClents data:", clients);
+  console.log("PopulateClients data:", clients);
   clients.forEach(c => {
     const tr = document.createElement('tr');
     if (!c.connected) {
@@ -49,7 +49,7 @@ function connectWS() {
     console.log("WS data:", data);
     document.getElementById('totalClients').textContent = data.total;
     document.getElementById('connectedClients').textContent = (data.connected );
-    populateClients(data.clients || data.connected);
+    populateClients(data.clients);
   };
 }
 
