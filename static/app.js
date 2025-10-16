@@ -134,6 +134,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const dropdown = document.getElementById("menuDropdown");
 
   btn.addEventListener("click", (e) => {
+    console.log("hamburger clicked");
     e.stopPropagation();
     dropdown.classList.toggle("hidden");
   });
