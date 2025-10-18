@@ -28,7 +28,7 @@ class WSManager:
             clients = get_connected_clients()
             total = get_total_clients()
             payload = {"total": total, "connected": len(clients), "list": clients, "ts": int(time.time())}
-
+            print(payload)
             # compute deltas and insert into DB
             for c in clients:
                 name = c["name"]
