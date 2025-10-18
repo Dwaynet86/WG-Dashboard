@@ -87,11 +87,11 @@ def add_user(
     if email and new_password:
         try:
             msg = MIMEText(
-                f"Hello {username},\n\nYour PiVPN dashboard account has been created.\n"
+                f"Hello {username},\n\nYour WG Dashboard account has been created.\n"
                 f"Temporary password: {new_password}\n"
-                f"Please change it on first login.\n\n-- PiVPN Dashboard"
+                f"Please change it on first login.\n\n-- WG Dashboard"
             )
-            msg["Subject"] = "Your PiVPN Account"
+            msg["Subject"] = "Your WG Dashboard Account"
             msg["From"] = SMTP_FROM
             msg["To"] = email
             with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
