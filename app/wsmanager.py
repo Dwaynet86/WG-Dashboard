@@ -26,8 +26,9 @@ class WSManager:
     async def _poll_loop(self):
         while True:
             clients = get_connected_clients()
+            active = [c for c in clients if c.get("connected")]
             total = get_total_clients()
-            payload = {"total": total, "connected": len(clients), "list": clients, "ts": int(time.time())}
+            payload = {"total": total, "connected": len(active), "list": clients, "ts": int(time.time())}
             print(payload)
             # compute deltas and insert into DB
             for c in clients:
