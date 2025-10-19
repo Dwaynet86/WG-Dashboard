@@ -165,7 +165,7 @@ async def add_client(request: Request,
                      client_name: str = Form(...),
                      link_user: str = Form(...),
                      current_user: str = Depends(get_username_from_request),
-                     ip_address: str = Form(...),
+                     ip: str = Form(...),
                      role: str = Depends(get_user_role)):
     # Only admin can add a new client
     if role != "admin":
