@@ -90,8 +90,25 @@
         <label class="block text-gray-300 text-sm mb-1">IP Address</label>
         <input name="username" placeholder="10.92.93.0" class="p-2 rounded bg-gray-700 text-white"/>
       </div>
+      <div>
+        <label class="block text-gray-300 text-sm mb-1">Link to User (optional)</label>
+        <input name="link_user" class="p-2 rounded bg-gray-700 text-white" placeholder="username" />
+      </div>
       <button class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-white">Add Client</button>
     </form>
+    {% if success_client %}
+      <div class="mt-4 bg-gray-700 text-green-300 p-3 rounded">
+        <p><strong>Client '{{ new_client }}' created successfully.</strong></p>
+        {% if linked_user %}
+          <p>Linked to user: <strong>{{ linked_user }}</strong></p>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if error_client %}
+      <div class="mt-4 bg-gray-700 text-red-300 p-3 rounded">
+        <p><strong>Error creating client:</strong> {{ error_client }}</p>
+      </div>
+    {% endif %}
   </div>
 
   
