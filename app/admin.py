@@ -61,6 +61,7 @@ def add_user(
         new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
     
     # Add or update dashboard user record
+
     create_user(username,role,email,password)
 
     # Log action
