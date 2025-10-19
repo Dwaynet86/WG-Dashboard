@@ -62,7 +62,7 @@ def add_user(
     
     # Add or update dashboard user record
 
-    create_user(username,role,email,password)
+    create_user(username,password,role,email)
 
     # Log action
     log_admin_action(admin, "add_user", username, f"role={role}, email={email}")
