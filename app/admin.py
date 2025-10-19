@@ -43,7 +43,7 @@ def admin_page(request: Request):
     })
 
 
-@router.post("/admin/add", response_class=HTMLResponse)
+@router.post("/admin/add_user", response_class=HTMLResponse)
 def add_user(
     request: Request,
     username: str = Form(...),
@@ -87,7 +87,7 @@ def add_user(
     conn = get_conn()
     users = conn.execute("SELECT username, role, email FROM users ORDER BY username").fetchall()
     conn.close()
-    logs = get_admin_log(limit=30)
+    logs = get_admin_log(limit=10)
     return templates.TemplateResponse("admin.html", {
         "request": request,
         "username": admin,
