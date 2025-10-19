@@ -163,9 +163,9 @@ async def admin_reset_password(request: Request, username: str = Form(...)):
 @app.post("/admin/add_client")
 async def add_client(request: Request,
                      client_name: str = Form(...),
-                     link_user: str = Form(...),
+                     link_user: str = Form(None),
                      current_user: str = Depends(get_username_from_request),
-                     ip: str = Form(...),
+                     ip: str = Form(None),
                      role: str = Depends(get_user_role)):
     # Only admin can add a new client
     if role != "admin":
