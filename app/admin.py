@@ -54,7 +54,7 @@ def add_user(
     admin = require_admin(request)
     if not admin:
         return RedirectResponse("/")
-    new_password = none
+    new_password = None
     if password is None:
         # Generate random password
         alphabet = string.ascii_letters + string.digits
