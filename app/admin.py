@@ -64,7 +64,7 @@ def add_user(
     create_user(username,role,email,password)
 
     # Log action
-    log_admin_action(admin, "add_user", username, f"role={role}, email={email})
+    log_admin_action(admin, "add_user", username, f"role={role}, email={email}")
 
     # Send email if address provided and password created
     if email and new_password:
