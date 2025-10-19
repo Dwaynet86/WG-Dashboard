@@ -32,7 +32,7 @@ def admin_page(request: Request):
     users = conn.execute("SELECT username, role, email FROM users ORDER BY username").fetchall()
     conn.close()
 
-    logs = get_admin_log(limit=30)
+    logs = get_admin_log(limit=10)
     return templates.TemplateResponse("admin.html", {
         "request": request,
         "username": user,
