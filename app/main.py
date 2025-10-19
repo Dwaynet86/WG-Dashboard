@@ -175,12 +175,19 @@ async def add_client(request: Request,
     proc = subprocess.run(["sudo", "pivpn", "-a", client_name], capture_output=True, text=True)
     if proc.returncode != 0:
         return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
-    # Add link to database
+   
+    # Link to user if provided
     conn = get_conn()
-    conn.execute("INSERT INTO clients (name, user_id) VALUES (?, (SELECT id FROM users WHERE username=?))",
-                 (client_name, link_user))
+    if link_user:
+        conn.execute(
+            "INSERT INTO clients (name, user_id) VALUES (?, (SELECT id FROM users WHERE username=?))",
+            (client_name, link_user),
+        )
+    else:
+        conn.execute("INSERT INTO clients (name) VALUES (?)", (client_name,))
     conn.commit()
     conn.close()
+
     return JSONResponse({"success": True})
 
 @app.get("/api/configs")
