@@ -66,7 +66,7 @@ def add_user(
     else:
         # Add dashboard user record
         create_user(username,password,role,email)
-        print(f"User password:{password})"
+        print(f"User password:{password}")
     # Log action
     log_admin_action(admin, "add_user", username, f"role={role}, email={email}")
 
