@@ -55,7 +55,7 @@ def add_user(
     if not admin:
         return RedirectResponse("/")
 
-    if password = None:
+    if password is None:
         # Generate random password
         alphabet = string.ascii_letters + string.digits
         new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
