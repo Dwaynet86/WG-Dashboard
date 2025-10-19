@@ -51,17 +51,16 @@ def add_user(
     email: str = Form(""),
     password: str = Form("")
 ):
-    admin = require_admin(request)
+    admin = require_admin(request) # If not an Admin exit
     if not admin:
         return RedirectResponse("/")
+        
     new_password = None
-    if password is None:
-        # Generate random password
-        alphabet = string.ascii_letters + string.digits
-        new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
-    
-    # Add or update dashboard user record
-
+    if password is None:  # did user enter a password?
+        # Generate a random temporary password
+        password = secrets.token_urlsafe(8)
+            
+    # Add dashboard user record
     create_user(username,password,role,email)
 
     # Log action
@@ -88,13 +87,15 @@ def add_user(
     users = conn.execute("SELECT username, role, email FROM users ORDER BY username").fetchall()
     conn.close()
     logs = get_admin_log(limit=10)
+    message = f"'{username}' added with password: {password}"
     return templates.TemplateResponse("admin.html", {
         "request": request,
+        "success": message,
         "username": admin,
         "users": users,
         "logs": logs,
         "new_user": username if new_password else None,
-        "password": new_password if new_password else password 
+        "password": None
     })
 
 
