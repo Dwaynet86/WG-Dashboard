@@ -93,7 +93,7 @@ def add_user(
         "users": users,
         "logs": logs,
         "new_user": username if new_password else None,
-        "password": password if password else new_password 
+        "password": new_password if new_password else password 
     })
 
 
