@@ -26,6 +26,14 @@ def init_db():
             email TEXT, password_hash TEXT
         )""")
 
+        # Clients to users table
+        CREATE TABLE IF NOT EXISTS clients (
+            name TEXT PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            created_ts DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+
         # Audit log
         cur.execute("""
         CREATE TABLE IF NOT EXISTS admin_log (
