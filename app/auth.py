@@ -52,7 +52,7 @@ def verify_password_hash(password: str, hash_: str) -> bool:
 def create_user(username: str, password: str, role: str = "viewer", email: Optional[str] = None):
     """Create or update a user in users table with hashed password and role."""
     password_hash = hash_password(password)
-    print("UserName:{username}, Role:{role}, Email:{email}, Password:{password_hash})
+    print("UserName:{username}, Role:{role}, Email:{email}, Password:{password_hash}")
 
     upsert_user(username, role, email, password_hash)
 
