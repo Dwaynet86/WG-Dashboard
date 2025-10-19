@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from app.database import get_conn, upsert_user, get_user_role, log_admin_action, get_admin_log
-from app.auth import get_username_from_request
+from app.auth import get_username_from_request, create_user
 import subprocess, secrets, string, smtplib
 from email.mime.text import MIMEText
 
@@ -49,36 +49,19 @@ def add_user(
     username: str = Form(...),
     role: str = Form(...),
     email: str = Form(""),
-    create_system: str = Form(None)
+    password: str = Form("")
 ):
     admin = require_admin(request)
     if not admin:
         return RedirectResponse("/")
 
-    new_password = None
-    sys_created = False
-
-    if create_system:
-        # Check if system user exists
-        exists = subprocess.run(["id", username], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
-        if not exists:
-            # Generate random password
-            alphabet = string.ascii_letters + string.digits
-            new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
-            try:
-                subprocess.run(["sudo", "useradd", "-m", username], check=True)
-                subprocess.run(["sudo", "chpasswd"], input=f"{username}:{new_password}".encode(), check=True)
-                # Force password change at next login
-                subprocess.run(["sudo", "chage", "-d", "0", username], check=True)
-                sys_created = True
-            except subprocess.CalledProcessError as e:
-                print("Error creating system user:", e)
-
+    if password = None:
+        # Generate random password
+        alphabet = string.ascii_letters + string.digits
+        new_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+    
     # Add or update dashboard user record
-    conn = get_conn()
-    conn.execute("INSERT OR REPLACE INTO users(username, role, email) VALUES (?,?,?)", (username, role, email))
-    conn.commit()
-    conn.close()
+    create_user(username,role,email,password)
 
     # Log action
     log_admin_action(admin, "add_user", username, f"role={role}, email={email}, sys_created={sys_created}")
