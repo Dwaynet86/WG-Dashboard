@@ -163,6 +163,7 @@ async def admin_reset_password(request: Request, username: str = Form(...)):
 @app.post("/admin/add_client")
 async def add_client(request: Request,
                      client_name: str = Form(...),
+                     username: str = Form(None),
                      link_user: str = Form(None),
                      current_user: str = Depends(get_username_from_request),
                      ip: str = Form(None),
