@@ -59,12 +59,13 @@ def add_user(
     if password == "":  # did user enter a password?
         # Generate a random temporary password
         new_password = secrets.token_urlsafe(8)
-            
+        message = f"User: '{username}' added with password: {new_password}"    
         # Add dashboard user record with temp password
         create_user(username,password,role,email)
         print(f"New password generated: {new_password}")
     else:
         # Add dashboard user record
+        message = f"User: '{username}' added with password: {password}"
         create_user(username,password,role,email)
         print(f"User password:{password}")
     # Log action
@@ -91,7 +92,7 @@ def add_user(
     users = conn.execute("SELECT username, role, email FROM users ORDER BY username").fetchall()
     conn.close()
     logs = get_admin_log(limit=10)
-    message = f"User: '{username}' added with password: {new_password}"
+    
     return templates.TemplateResponse("admin.html", {
         "request": request,
         "success": message,
