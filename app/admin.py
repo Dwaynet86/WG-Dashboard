@@ -56,7 +56,7 @@ def add_user(
         return RedirectResponse("/")
         
     new_password = None
-    if password is None:  # did user enter a password?
+    if password == "":  # did user enter a password?
         # Generate a random temporary password
         new_password = secrets.token_urlsafe(8)
             
