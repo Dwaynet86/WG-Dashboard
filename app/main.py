@@ -1,5 +1,5 @@
 # app/main.py
-from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, Response
+from fastapi import FastAPI, Request, Form, WebSocket, WebSocketDisconnect, Response, Depends
 from fastapi.responses import RedirectResponse, HTMLResponse, StreamingResponse, PlainTextResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -159,6 +159,28 @@ async def admin_reset_password(request: Request, username: str = Form(...)):
             },
         )
 
+# Add a new client configuration
+@app.post("/admin/client/add")
+async def add_client(request: Request,
+                     client_name: str = Form(...),
+                     link_user: str = Form(...),
+                     current_user: str = Depends(get_username_from_request),
+                     role: str = Depends(get_user_role)):
+    # Only admin can add a new client
+    if role != "admin":
+        return JSONResponse({"error": "Forbidden"}, status_code=403)
+    
+    # call pivpn add
+    proc = subprocess.run(["sudo", "pivpn", "-a", client_name], capture_output=True, text=True)
+    if proc.returncode != 0:
+        return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
+    # Add link to database
+    conn = get_conn()
+    conn.execute("INSERT INTO clients (name, user_id) VALUES (?, (SELECT id FROM users WHERE username=?))",
+                 (client_name, link_user))
+    conn.commit()
+    conn.close()
+    return JSONResponse({"success": True})
 
 @app.get("/api/configs")
 async def api_configs():
