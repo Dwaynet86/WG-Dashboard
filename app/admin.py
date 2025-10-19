@@ -63,7 +63,7 @@ def add_user(
         # Add dashboard user record with temp password
         create_user(username,password,role,email)
         print(f"New password generated: {new_password}")
-    else
+    else:
         # Add dashboard user record
         create_user(username,password,role,email)
         print(f"User password:{password}"
