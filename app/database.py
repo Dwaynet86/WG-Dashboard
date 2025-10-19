@@ -27,11 +27,12 @@ def init_db():
         )""")
 
         # Clients to users table
+        cur.execute("""
         CREATE TABLE IF NOT EXISTS clients (
             name TEXT PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
             created_ts DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
+        )""")
 
 
         # Audit log
@@ -43,8 +44,7 @@ def init_db():
             target TEXT,
             details TEXT,
             ts DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        """)
+        )""")
 
         # sessions: simple token-based sessions
         cur.execute("""
