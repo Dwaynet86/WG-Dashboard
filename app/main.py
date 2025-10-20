@@ -165,9 +165,12 @@ async def add_client(request: Request,
                      client_name: str = Form(...),
                      username: str = Form(None),
                      link_user: str = Form(None),
-                     current_user: str = Depends(get_username_from_request),
-                     ip: str = Form(None),
-                     role: str = Depends(get_user_role)):
+                     ip: str = Form(None)
+                    ):
+                     
+    current_user = get_username_from_request(request)
+    role = get_user_role(current_user)
+    
     # Only admin can add a new client
     if role != "admin":
         return JSONResponse({"error": "Forbidden"}, status_code=403)
