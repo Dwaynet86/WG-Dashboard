@@ -177,9 +177,9 @@ async def add_client(request: Request,
     
     # call pivpn add
     if ip is None: # if no ip enetered use next available
-       proc = subprocess.run(["sudo", "pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True)
+       proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True)
     else: # if ip enetered use it
-       proc = subprocess.run(["sudo", "pivpn", "-a", "-n", client_name, "-ip", ip], capture_output=True, text=True) 
+       proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", ip], capture_output=True, text=True) 
     
     if proc.returncode != 0:
         return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
