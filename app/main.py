@@ -183,8 +183,8 @@ async def add_client(request: Request,
        print(f"pivpn -a -n {client_name} -ip {ip}")
        #proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", ip], capture_output=True, text=True, timeout=10) 
     
-    if proc.returncode != 0:
-        return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
+    #if proc.returncode != 0:
+    #    return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
    
     # Link to user if provided
     conn = get_conn()
