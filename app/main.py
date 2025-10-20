@@ -165,7 +165,6 @@ async def add_client(request: Request,
                      client_name: str = Form(...),
                      username: str = Form(None),
                      link_user: str = Form(None),
-                     ip: str = Form(None)
                     ):
                      
     current_user = get_username_from_request(request)
@@ -176,15 +175,10 @@ async def add_client(request: Request,
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     print("client:", client_name, "username:", username, "linkuser:", link_user, "ip:", ip)
     # call pivpn add
-    if ip: # if no ip enetered use next available
-        print(f"pivpn -a -n {client_name} -client-ip auto")
-        #proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True, timeout=10)
-    else: # if ip enetered use it
-       print(f"pivpn -a -n {client_name} -ip {ip}")
-       #proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", ip], capture_output=True, text=True, timeout=10) 
-    
-    #if proc.returncode != 0:
-    #    return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
+    proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True, timeout=10)
+        
+    if proc.returncode != 0:
+        return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
    
     # Link to user if provided
     conn = get_conn()
