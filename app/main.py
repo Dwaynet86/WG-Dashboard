@@ -173,7 +173,7 @@ async def add_client(request: Request,
     # Only admin can add a new client
     if role != "admin":
         return JSONResponse({"error": "Forbidden"}, status_code=403)
-    print("client:", client_name, "username:", username, "linkuser:", link_user, "ip:", ip)
+        
     # call pivpn add
     proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True, timeout=10)
         
