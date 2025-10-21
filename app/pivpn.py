@@ -181,11 +181,18 @@ def read_config(name: str) -> str:
         return ""
     return path.read_text()
 
-def delete_config(name: str) -> bool:
+def delete_config(client_name: str) -> bool:
     """Delete a config file"""
     try:
-        path = Path(CONFIG_DIR) / f"{name}.conf"
-        path.unlink(missing_ok=True)
+        path = Path(CONFIG_DIR) / f"{client_name}.conf"
+        #path.unlink(missing_ok=True)
+
+        print(client_name)
+        # call pivpn add
+        proc = subprocess.run(["pivpn", "-r", "-y", client_name], capture_output=True, text=True, timeout=10)
+        
+        if proc.returncode != 0:
+            return JSONResponse({"error": "Failed to remove client", "details": proc.stderr}, status_code=500)
         return True
     except Exception as e:
         print("Delete error:", e)
