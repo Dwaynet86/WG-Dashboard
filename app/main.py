@@ -178,7 +178,17 @@ async def add_client(request: Request,
     proc = subprocess.run(["pivpn", "-a", "-n", client_name, "-ip", "auto"], capture_output=True, text=True, timeout=10)
         
     if proc.returncode != 0:
-        return JSONResponse({"error": "Failed to add client", "details": proc.stderr}, status_code=500)
+        error_client = f"Failed to add client: {proc.stderr}"
+        return templates.TemplateResponse(
+            "admin.html",
+            {
+                "request": request,
+                "username": current_user,
+                "error_client": error_client,
+                "users": get_conn().execute("SELECT username, role, email FROM users").fetchall(),
+                "logs": get_admin_log(limit=30),
+            },
+        )
    
     # Link to user if provided
     conn = get_conn()
@@ -192,7 +202,18 @@ async def add_client(request: Request,
     conn.commit()
     conn.close()
 
-    return JSONResponse({"success": True})
+    return templates.TemplateResponse(
+        "admin.html",
+        {
+            "request": request,
+            "username": current_user,
+            "success_client": True,
+            "new_client": client_name,
+            "linked_user": link_user,
+            "users": get_conn().execute("SELECT username, role, email FROM users").fetchall(),
+            "logs": get_admin_log(limit=30),
+        },
+    )
 
 @app.get("/api/configs")
 async def api_configs():
