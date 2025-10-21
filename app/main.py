@@ -202,8 +202,7 @@ async def add_client(request: Request,
     conn.commit()
     conn.close()
 
-    #  broadcast updated client list to all dashboards                    
-    await wsmanager.broadcast_clients()
+    
     return templates.TemplateResponse(
         "admin.html",
         {
